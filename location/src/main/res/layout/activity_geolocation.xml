@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".GeolocationActivity">
+
+    <!-- Searching Location -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_animation_searching_location"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintVertical_bias="0.4"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="bouncy-mapmaker.json"
+        app:lottie_loop="true"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/textView_searching_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Searching Location..."
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lottie_animation_searching_location"
+        android:visibility="visible"
+        />
+
+    <!-- Location Found -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_animation_location_found"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="bouncy-mapmaker.json"
+        app:lottie_loop="true"
+        android:layout_marginTop="50dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/textView_location_found_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your Current Location"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lottie_animation_location_found"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:id="@+id/textView_location_found_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Jalan Tegal Rotan No 78, Bintaro Sektor 9 Tangerang Selatan 15413"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintWidth_percent="0.8"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_location_found_title"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:id="@+id/textView_location_found_question"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="is it correct location?"
+        android:textAlignment="center"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintWidth_percent="0.8"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_location_found_description"
+        android:layout_marginTop="50dp"
+        android:visibility="gone"
+        />
+
+    <Button
+        android:id="@+id/button_location_found_yes"
+        android:text="Yes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintWidth_percent="0.4"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/button_location_found_refresh"
+        app:layout_constraintTop_toBottomOf="@id/textView_location_found_question"
+        android:layout_marginTop="20dp"
+        style="@style/ButtonFull"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/button_location_found_refresh"
+        android:text="Refresh"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintWidth_percent="0.4"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/button_location_found_yes"
+        app:layout_constraintTop_toBottomOf="@id/textView_location_found_question"
+        android:layout_marginTop="20dp"
+        style="@style/ButtonOutline"
+        android:visibility="gone"/>
+
+    <View
+        android:id="@+id/view_location_found_left"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintWidth_percent="0.3"
+        app:layout_constraintRight_toLeftOf="@id/textView_location_found_or"
+        app:layout_constraintTop_toBottomOf="@id/button_location_found_refresh"
+        android:layout_marginTop="80dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/textView_location_found_or"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Or"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintWidth_percent="0.1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button_location_found_refresh"
+        android:layout_marginTop="70dp"
+        android:visibility="gone"
+        />
+
+    <View
+        android:id="@+id/view_location_found_right"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintWidth_percent="0.3"
+        app:layout_constraintLeft_toRightOf="@id/textView_location_found_or"
+        app:layout_constraintTop_toBottomOf="@id/button_location_found_yes"
+        android:layout_marginTop="80dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/textView_location_found_google_maps"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Use Google Maps"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintWidth_percent="0.8"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_location_found_or"
+        android:layout_marginTop="50dp"
+        android:visibility="gone"
+        />
+
+</android.support.constraint.ConstraintLayout>
