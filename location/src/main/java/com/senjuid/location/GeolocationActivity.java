@@ -3,6 +3,7 @@ package com.senjuid.location;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -91,12 +92,18 @@ public abstract class GeolocationActivity extends AppCompatActivity {
                 .setTitle("Enable Location")
                 .setMessage("Your Locations Settings is set to 'Off'. Please Enable Location to use this app")
                 .setCancelable(false)
-                .setPositiveButton("Location Settings", (dialog1, which) -> {
-                    Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    startActivityForResult(myIntent, PERMISSIONS_REQUEST_SETTINGS);
+                .setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivityForResult(myIntent, PERMISSIONS_REQUEST_SETTINGS);
+                    }
                 })
-                .setNegativeButton("Cancel", (dialog1, which) -> {
-                    finish();
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
                 })
                 .show();
     }
@@ -121,18 +128,22 @@ public abstract class GeolocationActivity extends AppCompatActivity {
 
     private void loadLocation() {
         hideComponent();
-        new Handler().postDelayed(() -> {
-            try {
-                GeoLocator geoLocator = new GeoLocator(getApplicationContext(), GeolocationActivity.this);
-                mLongitude = geoLocator.getLongitude();
-                mLattitude = geoLocator.getLattitude();
-                locationFoundDescription.setText(geoLocator.getAddress());
-            } catch (Exception ex) {
-                mLongitude = 0.0;
-                mLattitude = 0.0;
-                locationFoundDescription.setText("Unable to trace your location");
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    GeoLocator geoLocator = new GeoLocator(getApplicationContext(), GeolocationActivity.this);
+                    mLongitude = geoLocator.getLongitude();
+                    mLattitude = geoLocator.getLattitude();
+                    locationFoundDescription.setText(geoLocator.getAddress());
+                } catch (Exception ex) {
+                    mLongitude = 0.0;
+                    mLattitude = 0.0;
+                    locationFoundDescription.setText("Unable to trace your location");
+                }
+                showComponent();
             }
-            showComponent();
         }, 3000);
     }
 
@@ -151,22 +162,31 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         locationFoundOr = findViewById(R.id.textView_location_found_or);
         locationFoundGoogleMaps = findViewById(R.id.textView_location_found_google_maps);
 
-        locationFoundRefresh.setOnClickListener((i) -> {
-            loadLocation();
+        locationFoundRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadLocation();
+            }
         });
 
-        locationFoundYes.setOnClickListener((i) -> {
-            finish();
-            onYesButtonPressed(mLattitude, mLongitude);
+        locationFoundYes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+                onYesButtonPressed(mLattitude, mLongitude);
+            }
         });
 
-        locationFoundGoogleMaps.setOnClickListener((i) -> {
-            String geo = "geo:" + mLattitude + "," + mLongitude;
-            Uri gmmIntentUri = Uri.parse(geo);
-            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-            mapIntent.setPackage("com.google.android.apps.maps");
-            if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                startActivity(mapIntent);
+        locationFoundGoogleMaps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String geo = "geo:" + mLattitude + "," + mLongitude;
+                Uri gmmIntentUri = Uri.parse(geo);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(mapIntent);
+                }
             }
         });
     }
