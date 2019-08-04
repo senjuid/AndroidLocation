@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -22,6 +23,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
 
     public static Integer PERMISSIONS_REQUEST_CODE = 1;
     public static Integer PERMISSIONS_REQUEST_SETTINGS = 2;
+    public static Integer REQUEST_MAPS = 3;
 
     AndroidPermissions mPermissions;
 
@@ -42,7 +44,8 @@ public abstract class GeolocationActivity extends AppCompatActivity {
     TextView locationFoundGoogleMaps;
 
     Double mLongitude;
-    Double mLattitude;
+    Double mLatitude;
+    String mAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +105,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
+//                        finish();
                     }
                 })
                 .show();
@@ -135,16 +138,30 @@ public abstract class GeolocationActivity extends AppCompatActivity {
                 try {
                     GeoLocator geoLocator = new GeoLocator(getApplicationContext(), GeolocationActivity.this);
                     mLongitude = geoLocator.getLongitude();
-                    mLattitude = geoLocator.getLattitude();
+                    mLatitude = geoLocator.getLattitude();
+                    mAddress = geoLocator.getAddress();
                     locationFoundDescription.setText(geoLocator.getAddress());
+                    showComponent();
                 } catch (Exception ex) {
-                    mLongitude = 0.0;
-                    mLattitude = 0.0;
-                    locationFoundDescription.setText("Unable to trace your location");
+                    Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
+                    startActivityForResult(i, REQUEST_MAPS);
                 }
-                showComponent();
             }
         }, 3000);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_MAPS) {
+            if (resultCode == RESULT_OK) {
+                mLatitude = Double.valueOf(data.getStringExtra("latitude"));
+                mLongitude = Double.valueOf(data.getStringExtra("longitude"));
+                mAddress = data.getStringExtra("address");
+                onYesButtonPressed(mLatitude, mLongitude, mAddress);
+                finish();
+            }
+        }
     }
 
     private void initialComponent() {
@@ -165,22 +182,22 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         locationFoundRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadLocation();
+                setupPermissions();
             }
         });
 
         locationFoundYes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                onYesButtonPressed(mLatitude, mLongitude, mAddress);
                 finish();
-                onYesButtonPressed(mLattitude, mLongitude);
             }
         });
 
         locationFoundGoogleMaps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String geo = "geo:" + mLattitude + "," + mLongitude;
+                String geo = "geo:" + mLatitude + "," + mLongitude;
                 Uri gmmIntentUri = Uri.parse(geo);
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
@@ -223,5 +240,6 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         locationFoundGoogleMaps.setVisibility(View.GONE);
     }
 
-    public abstract void onYesButtonPressed(Double latitude, Double Longitude);
+    public abstract void onYesButtonPressed(Double latitude, Double longitude, String address);
+
 }

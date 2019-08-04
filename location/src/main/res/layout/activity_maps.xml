@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MapsActivity">
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/button_center_location"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/button_circle"
+        android:src="@drawable/ic_my_location_black_24dp"
+        app:layout_constraintBottom_toTopOf="@id/constraintLayout_message"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@drawable/layout_bg"
+        android:layout_margin="10dp"
+        android:paddingBottom="30dp"
+        android:paddingTop="20dp">
+
+        <!-- Message Error -->
+
+        <TextView
+            android:id="@+id/textView_oops_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.8"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:gravity="center"
+            android:text="Opps!"
+            android:textSize="22dp"
+            android:textStyle="bold"
+            android:visibility="visible"
+            />
+
+        <TextView
+            android:id="@+id/textView_wrong_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.8"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_oops_location"
+            android:gravity="center"
+            android:text="it seems we couldn't find your location"
+            android:textSize="22dp"
+            android:textStyle="bold"
+            android:visibility="visible"
+            />
+
+        <TextView
+            android:id="@+id/textView_solution_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.9"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_wrong_location"
+            android:gravity="center"
+            android:textColor="#FBAC5E"
+            android:text="Please, correct your position"
+            android:textSize="22dp"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:visibility="visible"
+            />
+
+        <!-- when success -->
+
+        <TextView
+            android:id="@+id/textView_location_maps_found_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Current Location"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/textView_location_maps_found_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Jalan Tegal Rotan No 78, Bintaro Sektor 9 Tangerang Selatan 15413"
+            android:textAlignment="center"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            app:layout_constraintWidth_percent="0.8"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_location_maps_found_title"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/textView_location_maps_found_question"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="is it correct location?"
+            android:textAlignment="center"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            app:layout_constraintWidth_percent="0.8"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_location_maps_found_description"
+            android:layout_marginTop="30dp"
+            android:visibility="gone"
+            />
+
+        <Button
+            android:id="@+id/button_location_maps_found_yes"
+            android:text="Yes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.4"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/button_location_maps_found_refresh"
+            app:layout_constraintTop_toBottomOf="@id/textView_location_maps_found_question"
+            android:layout_marginTop="20dp"
+            style="@style/ButtonFull"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/button_location_maps_found_refresh"
+            android:text="Refresh"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.4"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/button_location_maps_found_yes"
+            app:layout_constraintTop_toBottomOf="@id/textView_location_maps_found_question"
+            android:layout_marginTop="20dp"
+            style="@style/ButtonOutline"
+            android:visibility="gone"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>
