@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.google.android.gms.location.LocationRequest;
 
 public abstract class GeolocationActivity extends AppCompatActivity {
 
@@ -79,7 +80,13 @@ public abstract class GeolocationActivity extends AppCompatActivity {
     // Check GPS is active or not
     private Boolean isLocationEnabled() {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        int locationMode;
+        try {
+            locationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE);
+        } catch (Settings.SettingNotFoundException e) {
+            locationMode = 1;
+        }
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) && locationMode == 3;
     }
 
     private Boolean checkLocation() {
@@ -93,7 +100,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog
                 .setTitle("Enable Location")
-                .setMessage("Your Locations Settings is set to 'Off'. Please Enable Location to use this app")
+                .setMessage("Please verify you've switched Location to \"On\". Also, set your Location Mode to High Accuracy")
                 .setCancelable(false)
                 .setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
                     @Override
@@ -161,6 +168,9 @@ public abstract class GeolocationActivity extends AppCompatActivity {
                 onYesButtonPressed(mLatitude, mLongitude, mAddress);
                 finish();
             }
+        } else if (requestCode == PERMISSIONS_REQUEST_SETTINGS) {
+            LocationRequest mLocationRequest = LocationRequest.create();
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
     }
 
