@@ -1,11 +1,15 @@
 package com.senjuid.location;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.Settings;
@@ -15,9 +19,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.location.LocationRequest;
 
 public abstract class GeolocationActivity extends AppCompatActivity {
@@ -36,6 +42,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
     LottieAnimationView locationFoundLottie;
     TextView locationFoundTitle;
     TextView locationFoundDescription;
+    ImageView imageLocationFoundDescription;
     TextView locationFoundQuestion;
     Button locationFoundYes;
     Button locationFoundRefresh;
@@ -43,15 +50,29 @@ public abstract class GeolocationActivity extends AppCompatActivity {
     View locationFoundRight;
     TextView locationFoundOr;
     TextView locationFoundGoogleMaps;
+    ImageView imageLocationFoundGoogleMaps;
 
     Double mLongitude;
     Double mLatitude;
     String mAddress;
 
+    String url = "https://maps.google.com/maps/api/staticmap?zoom=18&size=600x1750&sensor=false";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_geolocation);
+
+        ApplicationInfo app = null;
+        try {
+            app = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+            Bundle bundle = app.metaData;
+            String key = "&key=" + bundle.getString("com.google.android.geo.API_KEY");
+            url = url + key;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -147,7 +168,16 @@ public abstract class GeolocationActivity extends AppCompatActivity {
                     mLongitude = geoLocator.getLongitude();
                     mLatitude = geoLocator.getLattitude();
                     mAddress = geoLocator.getAddress();
-                    locationFoundDescription.setText(geoLocator.getAddress());
+//                    locationFoundDescription.setText(geoLocator.getAddress());
+//                    imageLocationFoundDescription
+
+                    Glide
+                            .with(getApplicationContext())
+                            .load(url + "&center=" + mLatitude + "," + mLongitude + "&markers=" + mLatitude + "," + mLongitude)
+                            .centerCrop()
+                            .error(new TextDrawable(mLatitude + "," + mLongitude))
+                            .into(imageLocationFoundDescription);
+
                     showComponent();
                 } catch (Exception ex) {
                     Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
@@ -181,6 +211,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         locationFoundLottie = findViewById(R.id.lottie_animation_location_found);
         locationFoundTitle = findViewById(R.id.textView_location_found_title);
         locationFoundDescription = findViewById(R.id.textView_location_found_description);
+        imageLocationFoundDescription = findViewById(R.id.imageView_location_found_description);
         locationFoundQuestion = findViewById(R.id.textView_location_found_question);
         locationFoundYes = findViewById(R.id.button_location_found_yes);
         locationFoundRefresh = findViewById(R.id.button_location_found_refresh);
@@ -188,6 +219,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         locationFoundRight = findViewById(R.id.view_location_found_right);
         locationFoundOr = findViewById(R.id.textView_location_found_or);
         locationFoundGoogleMaps = findViewById(R.id.textView_location_found_google_maps);
+        imageLocationFoundGoogleMaps = findViewById(R.id.image__location_found_google_maps);
 
         locationFoundRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -204,7 +236,33 @@ public abstract class GeolocationActivity extends AppCompatActivity {
             }
         });
 
+        imageLocationFoundDescription.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String geo = "geo:" + mLatitude + "," + mLongitude;
+                Uri gmmIntentUri = Uri.parse(geo);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(mapIntent);
+                }
+            }
+        });
+
         locationFoundGoogleMaps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String geo = "geo:" + mLatitude + "," + mLongitude;
+                Uri gmmIntentUri = Uri.parse(geo);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(mapIntent);
+                }
+            }
+        });
+
+        imageLocationFoundGoogleMaps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String geo = "geo:" + mLatitude + "," + mLongitude;
@@ -224,7 +282,8 @@ public abstract class GeolocationActivity extends AppCompatActivity {
 
         locationFoundLottie.setVisibility(View.VISIBLE);
         locationFoundTitle.setVisibility(View.VISIBLE);
-        locationFoundDescription.setVisibility(View.VISIBLE);
+//        locationFoundDescription.setVisibility(View.VISIBLE);
+        imageLocationFoundDescription.setVisibility(View.VISIBLE);
         locationFoundQuestion.setVisibility(View.VISIBLE);
         locationFoundYes.setVisibility(View.VISIBLE);
         locationFoundRefresh.setVisibility(View.VISIBLE);
@@ -232,6 +291,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         locationFoundRight.setVisibility(View.VISIBLE);
         locationFoundOr.setVisibility(View.VISIBLE);
         locationFoundGoogleMaps.setVisibility(View.VISIBLE);
+        imageLocationFoundGoogleMaps.setVisibility(View.VISIBLE);
     }
 
     private void hideComponent() {
@@ -241,6 +301,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         locationFoundLottie.setVisibility(View.GONE);
         locationFoundTitle.setVisibility(View.GONE);
         locationFoundDescription.setVisibility(View.GONE);
+        imageLocationFoundDescription.setVisibility(View.GONE);
         locationFoundQuestion.setVisibility(View.GONE);
         locationFoundYes.setVisibility(View.GONE);
         locationFoundRefresh.setVisibility(View.GONE);
@@ -248,6 +309,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         locationFoundRight.setVisibility(View.GONE);
         locationFoundOr.setVisibility(View.GONE);
         locationFoundGoogleMaps.setVisibility(View.GONE);
+        imageLocationFoundGoogleMaps.setVisibility(View.GONE);
     }
 
     public abstract void onYesButtonPressed(Double latitude, Double longitude, String address);

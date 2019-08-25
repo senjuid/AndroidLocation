@@ -42,7 +42,7 @@
         android:layout_height="50dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/textView_location_found_title"
         app:lottie_autoPlay="true"
         app:lottie_fileName="bouncy-mapmaker.json"
         app:lottie_loop="true"
@@ -56,9 +56,10 @@
         android:text="Your Current Location"
         android:textSize="25sp"
         android:textStyle="bold"
+        android:layout_marginBottom="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lottie_animation_location_found"
+        app:layout_constraintBottom_toTopOf="@id/imageView_location_found_description"
         android:visibility="gone"
         />
 
@@ -70,12 +71,27 @@
         android:textAlignment="center"
         android:textSize="14sp"
         android:textStyle="bold"
+        android:layout_marginBottom="20dp"
         app:layout_constraintWidth_percent="0.8"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView_location_found_title"
+        app:layout_constraintBottom_toTopOf="@id/textView_location_found_question"
         android:visibility="gone"
         />
+
+    <ImageView
+        android:id="@+id/imageView_location_found_description"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintWidth_percent="0.8"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/textView_location_found_question"
+        android:background="@drawable/location_background_image_view"
+        android:clickable="true"
+        android:visibility="gone"
+        android:focusable="true" />
 
     <TextView
         android:id="@+id/textView_location_found_question"
@@ -88,8 +104,9 @@
         app:layout_constraintWidth_percent="0.8"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView_location_found_description"
-        android:layout_marginTop="50dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="30dp"
         android:visibility="gone"
         />
 
@@ -127,7 +144,7 @@
         app:layout_constraintWidth_percent="0.3"
         app:layout_constraintRight_toLeftOf="@id/textView_location_found_or"
         app:layout_constraintTop_toBottomOf="@id/button_location_found_refresh"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="60dp"
         android:visibility="gone"/>
 
     <TextView
@@ -142,7 +159,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/button_location_found_refresh"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="50dp"
         android:visibility="gone"
         />
 
@@ -154,23 +171,36 @@
         app:layout_constraintWidth_percent="0.3"
         app:layout_constraintLeft_toRightOf="@id/textView_location_found_or"
         app:layout_constraintTop_toBottomOf="@id/button_location_found_yes"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="60dp"
         android:visibility="gone"/>
 
     <TextView
         android:id="@+id/textView_location_found_google_maps"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Use Google Maps"
         android:textAlignment="center"
         android:textSize="14sp"
         android:textStyle="bold"
-        app:layout_constraintWidth_percent="0.8"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textView_location_found_or"
-        android:layout_marginTop="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="gone"
         />
+
+    <ImageView
+        android:id="@+id/image__location_found_google_maps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_location_on_black_24dp"
+        app:layout_constraintRight_toLeftOf="@id/textView_location_found_google_maps"
+        app:layout_constraintTop_toBottomOf="@id/textView_location_found_or"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="10dp"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"/>
+
 
 </android.support.constraint.ConstraintLayout>
