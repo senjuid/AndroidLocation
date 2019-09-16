@@ -13,7 +13,6 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
@@ -55,6 +54,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     TextView textView_location_maps_found_question;
     Button button_location_maps_found_yes;
     Button button_location_maps_found_refresh;
+    Button button_solution_location;
 
     Double mLongitude;
     Double mLatitude;
@@ -70,6 +70,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+        assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -82,6 +83,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        myLocation();
+
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -91,13 +94,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -139,10 +140,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 GeoLocator geoLocator = new GeoLocator(getApplicationContext(), MapsActivity.this);
                                 textView_location_maps_found_description.setText(geoLocator.getAddress());
                                 mAddress = geoLocator.getAddress();
-                                showComponent();
+//                                showComponent();
                             }catch (Exception ex) {
-                                hideComponent();
+//                                System.out.println("Error " + ex.getMessage());
+//                                hideComponent();
+                                mAddress = "";
                             }
+
+                            showComponent();
                         } else {
                             hideComponent();
                         }
@@ -153,7 +158,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void initComponent() {
         textView_oops_location = findViewById(R.id.textView_oops_location);
         textView_wrong_location = findViewById(R.id.textView_wrong_location);
-        textView_solution_location = findViewById(R.id.textView_solution_location);
+//        textView_solution_location = findViewById(R.id.textView_solution_location);
+        button_solution_location = findViewById(R.id.button_solution_location);
 
         textView_location_maps_found_title = findViewById(R.id.textView_location_maps_found_title);
         textView_location_maps_found_description = findViewById(R.id.textView_location_maps_found_description);
@@ -174,12 +180,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 onRefreshButtonPressed();
             }
         });
+
+        button_solution_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setupPermissions();
+            }
+        });
     }
 
     private void hideComponent() {
         textView_oops_location.setVisibility(View.VISIBLE);
         textView_wrong_location.setVisibility(View.VISIBLE);
-        textView_solution_location.setVisibility(View.VISIBLE);
+//        textView_solution_location.setVisibility(View.VISIBLE);
+        button_solution_location.setVisibility(View.VISIBLE);
 
         textView_location_maps_found_title.setVisibility(View.GONE);
         textView_location_maps_found_description.setVisibility(View.GONE);
@@ -191,7 +205,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void showComponent() {
         textView_oops_location.setVisibility(View.GONE);
         textView_wrong_location.setVisibility(View.GONE);
-        textView_solution_location.setVisibility(View.GONE);
+//        textView_solution_location.setVisibility(View.GONE);
+        button_solution_location.setVisibility(View.GONE);
 
         textView_location_maps_found_title.setVisibility(View.VISIBLE);
         textView_location_maps_found_description.setVisibility(View.VISIBLE);

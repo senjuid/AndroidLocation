@@ -68,6 +68,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
             app = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = app.metaData;
             String key = "&key=" + bundle.getString("com.google.android.geo.API_KEY");
+            System.out.println("KEY " + key);
             url = url + key;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -163,28 +164,33 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                try {
-                    GeoLocator geoLocator = new GeoLocator(getApplicationContext(), GeolocationActivity.this);
-                    mLongitude = geoLocator.getLongitude();
-                    mLatitude = geoLocator.getLattitude();
-                    mAddress = geoLocator.getAddress();
-//                    locationFoundDescription.setText(geoLocator.getAddress());
-//                    imageLocationFoundDescription
 
-                    Glide
-                            .with(getApplicationContext())
-                            .load(url + "&center=" + mLatitude + "," + mLongitude + "&markers=" + mLatitude + "," + mLongitude)
-                            .centerCrop()
-                            .error(new TextDrawable(mLatitude + "," + mLongitude))
-                            .into(imageLocationFoundDescription);
+                Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
+                startActivityForResult(i, REQUEST_MAPS);
 
-                    showComponent();
-                } catch (Exception ex) {
-                    Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
-                    startActivityForResult(i, REQUEST_MAPS);
-                }
+//                try {
+//                    GeoLocator geoLocator = new GeoLocator(getApplicationContext(), GeolocationActivity.this);
+//                    mLongitude = geoLocator.getLongitude();
+//                    mLatitude = geoLocator.getLattitude();
+//                    mAddress = geoLocator.getAddress();
+////                    locationFoundDescription.setText(geoLocator.getAddress());
+////                    imageLocationFoundDescription
+//
+//                    Glide
+//                            .with(getApplicationContext())
+//                            .load(url + "&center=" + mLatitude + "," + mLongitude + "&markers=" + mLatitude + "," + mLongitude)
+//                            .centerCrop()
+//                            .error(new TextDrawable(mLatitude + "," + mLongitude))
+//                            .into(imageLocationFoundDescription);
+//
+//                    showComponent();
+//                } catch (Exception ex) {
+//                    Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
+//                    startActivityForResult(i, REQUEST_MAPS);
+//                }
+
             }
-        }, 3000);
+        }, 500);
     }
 
     @Override
@@ -192,6 +198,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_MAPS) {
             if (resultCode == RESULT_OK) {
+                assert data != null;
                 mLatitude = Double.valueOf(data.getStringExtra("latitude"));
                 mLongitude = Double.valueOf(data.getStringExtra("longitude"));
                 mAddress = data.getStringExtra("address");
