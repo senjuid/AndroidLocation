@@ -2,11 +2,14 @@ package com.senjuid.location;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
+
 import android.location.Location;
 import android.location.LocationManager;
 import android.provider.Settings;
@@ -28,7 +31,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -42,6 +44,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
 
     private FusedLocationProviderClient mFusedLocationClient;
+
+    private BroadcastReceiver mLocationReceiver;
 
     int mHeight;
 
@@ -83,13 +87,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        myLocation();
-
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        myLocation();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try {
+            unregisterReceiver(mLocationReceiver);
+        } catch (Exception e) {
+        }
+        stopService(new Intent(this, LocationService.class));
     }
 
     @Override
@@ -124,35 +142,48 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            Point mappoint = mMap.getProjection().toScreenLocation(new LatLng(location.getLatitude(), location.getLongitude()));
-                            mappoint.set(mappoint.x, mappoint.y + (mHeight / 5)); // change these values as you need , just hard coded a value if you want you can give it based on a ratio like using DisplayMetrics  as well
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMap.getProjection().fromScreenLocation(mappoint), 16.0f));
 
-                            mLatitude = location.getLatitude();
-                            mLongitude = location.getLongitude();
+        //Register BroadcastReceiver to receive event from our location service
+        mLocationReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, Intent intent) {
+                Bundle extras = intent.getExtras();
+                if (extras != null) {
+                    unregisterReceiver(mLocationReceiver);
 
-                            try {
-                                GeoLocator geoLocator = new GeoLocator(getApplicationContext(), MapsActivity.this);
-                                textView_location_maps_found_description.setText(geoLocator.getAddress());
-                                mAddress = geoLocator.getAddress();
-//                                showComponent();
-                            }catch (Exception ex) {
-//                                System.out.println("Error " + ex.getMessage());
-//                                hideComponent();
-                                mAddress = "";
-                            }
+                    Location location = intent.getParcelableExtra(LocationService.INTENT_LOCATION_VALUE);
+                    setMyLocation(location);
+                }
+            }
+        };
+        registerReceiver(mLocationReceiver, new IntentFilter(LocationService.MY_LOCATION));
 
-                            showComponent();
-                        } else {
-                            hideComponent();
-                        }
-                    }
-                });
+        Intent intent = new Intent(this, LocationService.class);
+        startService(intent);
+    }
+
+    public void setMyLocation(Location location) {
+        if(location == null){
+            hideComponent();
+            return;
+        }
+
+        Point mapPoint = mMap.getProjection().toScreenLocation(new LatLng(location.getLatitude(), location.getLongitude()));
+        mapPoint.set(mapPoint.x, mapPoint.y + (mHeight / 5)); // change these values as you need , just hard coded a value if you want you can give it based on a ratio like using DisplayMetrics  as well
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMap.getProjection().fromScreenLocation(mapPoint), 16.0f));
+
+        mLatitude = location.getLatitude();
+        mLongitude = location.getLongitude();
+
+        try {
+            GeoLocator geoLocator = new GeoLocator(getApplicationContext(), MapsActivity.this);
+            textView_location_maps_found_description.setText(geoLocator.getAddress());
+            mAddress = geoLocator.getAddress();
+        }catch (Exception ex) {
+            mAddress = "";
+        }
+
+        showComponent();
     }
 
     private void initComponent() {
