@@ -24,10 +24,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name="com.senjuid.location.LocationService"
-            android:enabled="true"
-            android:exported="true" />
     </application>
 
 </manifest>

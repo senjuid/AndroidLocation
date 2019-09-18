@@ -1,17 +1,17 @@
 package com.senjuid.location;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
-import android.media.Image;
 import android.net.Uri;
-import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.bumptech.glide.Glide;
 import com.google.android.gms.location.LocationRequest;
 
 public abstract class GeolocationActivity extends AppCompatActivity {
@@ -58,6 +57,19 @@ public abstract class GeolocationActivity extends AppCompatActivity {
 
     String url = "https://maps.google.com/maps/api/staticmap?zoom=18&size=600x1750&sensor=false";
 
+    private BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, Intent intent) {
+            Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                Location location = intent.getParcelableExtra(GDLocationService.INTENT_LOCATION_VALUE);
+                i.putExtra("current_location", location);
+            }
+            startActivityForResult(i, REQUEST_MAPS);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +85,6 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -81,6 +92,18 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         super.onResume();
         initialComponent();
         setupPermissions();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(mLocationReceiver, new IntentFilter(GDLocationService.MY_LOCATION));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(mLocationReceiver);
     }
 
     private void setupPermissions() {
@@ -160,37 +183,10 @@ public abstract class GeolocationActivity extends AppCompatActivity {
 
     private void loadLocation() {
         hideComponent();
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
 
-                Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
-                startActivityForResult(i, REQUEST_MAPS);
-
-//                try {
-//                    GeoLocator geoLocator = new GeoLocator(getApplicationContext(), GeolocationActivity.this);
-//                    mLongitude = geoLocator.getLongitude();
-//                    mLatitude = geoLocator.getLattitude();
-//                    mAddress = geoLocator.getAddress();
-////                    locationFoundDescription.setText(geoLocator.getAddress());
-////                    imageLocationFoundDescription
-//
-//                    Glide
-//                            .with(getApplicationContext())
-//                            .load(url + "&center=" + mLatitude + "," + mLongitude + "&markers=" + mLatitude + "," + mLongitude)
-//                            .centerCrop()
-//                            .error(new TextDrawable(mLatitude + "," + mLongitude))
-//                            .into(imageLocationFoundDescription);
-//
-//                    showComponent();
-//                } catch (Exception ex) {
-//                    Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
-//                    startActivityForResult(i, REQUEST_MAPS);
-//                }
-
-            }
-        }, 500);
+        // Starting service
+        Intent intent = new Intent(this, GDLocationService.class);
+        startService(intent);
     }
 
     @Override

@@ -23,9 +23,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -42,10 +41,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationManager locationManager;
 
     private GoogleMap mMap;
-
-    private FusedLocationProviderClient mFusedLocationClient;
-
-    private BroadcastReceiver mLocationReceiver;
 
     int mHeight;
 
@@ -64,6 +59,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     Double mLatitude;
     String mAddress;
 
+    private BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, Intent intent) {
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                Location location = intent.getParcelableExtra(GDLocationService.INTENT_LOCATION_VALUE);
+                if(location != null) {
+                    setMyLocation(location);
+                    return;
+                }
+
+                String error = intent.getParcelableExtra(GDLocationService.INTENT_LOCATION_ERROR);
+                Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,8 +88,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         ImageButton locationFoundRefresh = findViewById(R.id.button_center_location);
         locationFoundRefresh.setOnClickListener(new View.OnClickListener() {
@@ -95,19 +105,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        myLocation();
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(mLocationReceiver, new IntentFilter(GDLocationService.MY_LOCATION));
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        try {
-            unregisterReceiver(mLocationReceiver);
-        } catch (Exception e) {
-        }
-        stopService(new Intent(this, LocationService.class));
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(mLocationReceiver);
     }
 
     @Override
@@ -136,6 +142,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         mHeight = displayMetrics.heightPixels;
 
+
+        Location location = getIntent().getParcelableExtra("current_location");
+        if(location != null){
+            setMyLocation(location);
+        }else {
+            myLocation();
+        }
+
     }
 
     public void myLocation() {
@@ -143,22 +157,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
 
-        //Register BroadcastReceiver to receive event from our location service
-        mLocationReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(final Context context, Intent intent) {
-                Bundle extras = intent.getExtras();
-                if (extras != null) {
-                    unregisterReceiver(mLocationReceiver);
-
-                    Location location = intent.getParcelableExtra(LocationService.INTENT_LOCATION_VALUE);
-                    setMyLocation(location);
-                }
-            }
-        };
-        registerReceiver(mLocationReceiver, new IntentFilter(LocationService.MY_LOCATION));
-
-        Intent intent = new Intent(this, LocationService.class);
+        // Starting service
+        Intent intent = new Intent(this, GDLocationService.class);
         startService(intent);
     }
 
