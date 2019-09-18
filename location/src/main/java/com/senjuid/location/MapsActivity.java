@@ -2,11 +2,9 @@ package com.senjuid.location;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 
@@ -31,7 +29,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GDLocationHelper.GDLocationHelperListener {
 
     public static Integer PERMISSIONS_REQUEST_CODE = 1;
     public static Integer PERMISSIONS_REQUEST_SETTINGS = 2;
@@ -59,22 +57,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     Double mLatitude;
     String mAddress;
 
-    private BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(final Context context, Intent intent) {
-            Bundle extras = intent.getExtras();
-            if (extras != null) {
-                Location location = intent.getParcelableExtra(GDLocationService.INTENT_LOCATION_VALUE);
-                if(location != null) {
-                    setMyLocation(location);
-                    return;
-                }
-
-                String error = intent.getParcelableExtra(GDLocationService.INTENT_LOCATION_ERROR);
-                Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
+    private GDLocationHelper gdLocationHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,18 +85,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        gdLocationHelper = new GDLocationHelper(this, this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        registerReceiver(mLocationReceiver, new IntentFilter(GDLocationService.MY_LOCATION));
+        gdLocationHelper.start();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(mLocationReceiver);
+        gdLocationHelper.stop();
     }
 
     @Override
@@ -157,9 +141,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
 
-        // Starting service
-        Intent intent = new Intent(this, GDLocationService.class);
-        startService(intent);
+        gdLocationHelper.requestLocation();
     }
 
     public void setMyLocation(Location location) {
@@ -327,5 +309,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void onInsufficientPermissions() {
         finish();
+    }
+
+    @Override
+    public void onLocationError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onLocationSuccess(Location location) {
+        setMyLocation(location);
     }
 }

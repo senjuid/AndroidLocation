@@ -2,11 +2,9 @@ package com.senjuid.location;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -25,7 +23,7 @@ import android.widget.TextView;
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.location.LocationRequest;
 
-public abstract class GeolocationActivity extends AppCompatActivity {
+public abstract class GeolocationActivity extends AppCompatActivity implements GDLocationHelper.GDLocationHelperListener {
 
     public static Integer PERMISSIONS_REQUEST_CODE = 1;
     public static Integer PERMISSIONS_REQUEST_SETTINGS = 2;
@@ -57,18 +55,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
 
     String url = "https://maps.google.com/maps/api/staticmap?zoom=18&size=600x1750&sensor=false";
 
-    private BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(final Context context, Intent intent) {
-            Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
-            Bundle extras = intent.getExtras();
-            if (extras != null) {
-                Location location = intent.getParcelableExtra(GDLocationService.INTENT_LOCATION_VALUE);
-                i.putExtra("current_location", location);
-            }
-            startActivityForResult(i, REQUEST_MAPS);
-        }
-    };
+    private GDLocationHelper gdLocationHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +72,8 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+
+        gdLocationHelper = new GDLocationHelper(this, this);
     }
 
     @Override
@@ -97,13 +86,13 @@ public abstract class GeolocationActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        registerReceiver(mLocationReceiver, new IntentFilter(GDLocationService.MY_LOCATION));
+        gdLocationHelper.start();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(mLocationReceiver);
+        gdLocationHelper.stop();
     }
 
     private void setupPermissions() {
@@ -183,10 +172,7 @@ public abstract class GeolocationActivity extends AppCompatActivity {
 
     private void loadLocation() {
         hideComponent();
-
-        // Starting service
-        Intent intent = new Intent(this, GDLocationService.class);
-        startService(intent);
+        gdLocationHelper.requestLocation();
     }
 
     @Override
@@ -199,6 +185,8 @@ public abstract class GeolocationActivity extends AppCompatActivity {
                 mLongitude = Double.valueOf(data.getStringExtra("longitude"));
                 mAddress = data.getStringExtra("address");
                 onYesButtonPressed(mLatitude, mLongitude, mAddress);
+                finish();
+            }else{
                 finish();
             }
         } else if (requestCode == PERMISSIONS_REQUEST_SETTINGS) {
@@ -313,6 +301,19 @@ public abstract class GeolocationActivity extends AppCompatActivity {
         locationFoundOr.setVisibility(View.GONE);
         locationFoundGoogleMaps.setVisibility(View.GONE);
         imageLocationFoundGoogleMaps.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onLocationSuccess(Location location) {
+        Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
+        i.putExtra("current_location", location);
+        startActivityForResult(i, REQUEST_MAPS);
+    }
+
+    @Override
+    public void onLocationError(String error) {
+        Intent i = new Intent(GeolocationActivity.this, MapsActivity.class);
+        startActivityForResult(i, REQUEST_MAPS);
     }
 
     public abstract void onYesButtonPressed(Double latitude, Double longitude, String address);
