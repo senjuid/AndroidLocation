@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,8 +21,9 @@ import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.location.LocationRequest;
+import com.senjuid.location.util.BaseActivity;
 
-public abstract class GeolocationActivity extends AppCompatActivity implements GDLocationHelper.GDLocationHelperListener {
+public abstract class GeolocationActivity extends BaseActivity implements GDLocationHelper.GDLocationHelperListener {
 
     public static Integer PERMISSIONS_REQUEST_CODE = 1;
     public static Integer PERMISSIONS_REQUEST_SETTINGS = 2;

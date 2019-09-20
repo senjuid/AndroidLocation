@@ -14,7 +14,6 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,8 +27,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.senjuid.location.util.BaseActivity;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GDLocationHelper.GDLocationHelperListener {
+public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GDLocationHelper.GDLocationHelperListener {
 
     public static Integer PERMISSIONS_REQUEST_CODE = 1;
     public static Integer PERMISSIONS_REQUEST_SETTINGS = 2;
