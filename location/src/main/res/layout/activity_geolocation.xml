@@ -26,7 +26,7 @@
         android:id="@+id/textView_searching_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Searching Location..."
+        android:text="@string/str_mod_loc_searching"
         android:textSize="25sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"

@@ -65,7 +65,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textView_oops_location"
             android:gravity="center"
-            android:text="it seems we couldn't find your location"
+            android:text="@string/str_mod_loc_location_not_found"
             android:textSize="22dp"
             android:textStyle="bold"
             android:visibility="visible"
@@ -81,7 +81,7 @@
             app:layout_constraintTop_toBottomOf="@id/textView_wrong_location"
             android:layout_marginTop="20dp"
             style="@style/ButtonFull"
-            android:text="Correct your position"
+            android:text="@string/str_mod_loc_refresh"
             android:visibility="visible"/>
 
 <!--        <TextView-->
@@ -107,7 +107,7 @@
             android:id="@+id/textView_location_maps_found_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Your Current Location"
+            android:text="@string/str_mod_loc_your_current_loc"
             android:textSize="25sp"
             android:textStyle="bold"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -135,7 +135,7 @@
             android:id="@+id/textView_location_maps_found_question"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="is it correct location?"
+            android:text="@string/str_mod_loc_is_correct"
             android:textAlignment="center"
             android:textSize="25sp"
             android:textStyle="bold"
@@ -150,7 +150,7 @@
 
         <Button
             android:id="@+id/button_location_maps_found_yes"
-            android:text="Yes"
+            android:text="@string/str_mod_loc_yes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintWidth_percent="0.4"
@@ -163,7 +163,7 @@
 
         <Button
             android:id="@+id/button_location_maps_found_refresh"
-            android:text="Refresh"
+            android:text="@string/str_mod_loc_refresh"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintWidth_percent="0.4"

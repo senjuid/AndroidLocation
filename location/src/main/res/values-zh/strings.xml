@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Location</string>
+    <string name="str_mod_loc_searching">搜索位置...</string>
+    <string name="str_mod_loc_your_current_loc">您现在的位置</string>
+    <string name="str_mod_loc_is_correct">这个对吗？</string>
+    <string name="str_mod_loc_location_not_found">我们似乎无法找到自己的位置。</string>
+    <string name="str_mod_loc_refresh">刷新</string>
+    <string name="str_mod_loc_yes">是</string>
+</resources>
