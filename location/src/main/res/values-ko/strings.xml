@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Location</string>
     <string name="str_mod_loc_searching">검색 위치...</string>
-    <string name="str_mod_loc_your_current_loc">현재 위치</string>
     <string name="str_mod_loc_is_correct">이 올바른지?</string>
     <string name="str_mod_loc_location_not_found">우리는 당신의 위치를 ​​찾을 수 없습니다 보인다.</string>
     <string name="str_mod_loc_refresh">새롭게 하다</string>
