@@ -12,6 +12,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -28,8 +29,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.senjuid.location.util.BaseActivity;
+import com.senjuid.location.util.LocationHelper;
 
-public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GDLocationHelper.GDLocationHelperListener {
+public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     public static Integer PERMISSIONS_REQUEST_CODE = 1;
     public static Integer PERMISSIONS_REQUEST_SETTINGS = 2;
@@ -48,7 +50,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GD
 
     TextView textView_location_maps_found_title;
     TextView textView_location_maps_found_description;
-    TextView textView_location_maps_found_question;
     Button button_location_maps_found_yes;
     Button button_location_maps_found_refresh;
     Button button_solution_location;
@@ -57,7 +58,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GD
     Double mLatitude;
     String mAddress;
 
-    private GDLocationHelper gdLocationHelper;
+    LocationHelper locationHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,19 +86,26 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GD
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        gdLocationHelper = new GDLocationHelper(this, this);
-    }
+        locationHelper = new LocationHelper(this, new LocationHelper.LocationHelperListener() {
+            @Override
+            public void onLocationUpdated(Location location) {
+                setMyLocation(location);
+            }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        gdLocationHelper.start();
-    }
+            @Override
+            public void onChangeToHighAccuracy(boolean changed) {
+                if(changed){
+                    locationHelper.startUpdateLocation();
+                }else{
+                    setMyLocation(null);
+                }
+            }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        gdLocationHelper.stop();
+            @Override
+            public void needChangeToHighAccuracy() {
+
+            }
+        });
     }
 
     @Override
@@ -107,6 +115,13 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GD
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        locationHelper.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -136,12 +151,12 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GD
 
     }
 
-    public void myLocation() {
+    public void  myLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
-        gdLocationHelper.requestLocation();
+        locationHelper.startUpdateLocation();
     }
 
     public void setMyLocation(Location location) {
@@ -176,7 +191,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GD
 
         textView_location_maps_found_title = findViewById(R.id.textView_location_maps_found_title);
         textView_location_maps_found_description = findViewById(R.id.textView_location_maps_found_description);
-        textView_location_maps_found_question = findViewById(R.id.textView_location_maps_found_question);
         button_location_maps_found_yes = findViewById(R.id.button_location_maps_found_yes);
         button_location_maps_found_refresh = findViewById(R.id.button_location_maps_found_refresh);
 
@@ -210,7 +224,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GD
 
         textView_location_maps_found_title.setVisibility(View.GONE);
         textView_location_maps_found_description.setVisibility(View.GONE);
-        textView_location_maps_found_question.setVisibility(View.GONE);
+//        textView_location_maps_found_question.setVisibility(View.GONE);
         button_location_maps_found_yes.setVisibility(View.GONE);
         button_location_maps_found_refresh.setVisibility(View.GONE);
     }
@@ -223,7 +237,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GD
 
         textView_location_maps_found_title.setVisibility(View.VISIBLE);
         textView_location_maps_found_description.setVisibility(View.VISIBLE);
-        textView_location_maps_found_question.setVisibility(View.VISIBLE);
+//        textView_location_maps_found_question.setVisibility(View.VISIBLE);
         button_location_maps_found_yes.setVisibility(View.VISIBLE);
         button_location_maps_found_refresh.setVisibility(View.VISIBLE);
     }
@@ -309,15 +323,5 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GD
 
     private void onInsufficientPermissions() {
         finish();
-    }
-
-    @Override
-    public void onLocationError(String error) {
-        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onLocationSuccess(Location location) {
-        setMyLocation(location);
     }
 }

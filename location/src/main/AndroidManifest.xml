@@ -36,11 +36,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light"/>
 
-        <service
-            android:name=".GDLocationService"
-            android:enabled="true"
-            android:exported="true" />
-
     </application>
 
 </manifest>

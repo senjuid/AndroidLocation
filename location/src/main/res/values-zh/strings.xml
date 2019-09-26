@@ -6,4 +6,5 @@
     <string name="str_mod_loc_location_not_found">我们似乎无法找到自己的位置。</string>
     <string name="str_mod_loc_refresh">刷新</string>
     <string name="str_mod_loc_yes">是</string>
+    <string name="str_mod_loc_high_accuracy">GPS必须启用“高精度”才能记录出勤</string>
 </resources>
