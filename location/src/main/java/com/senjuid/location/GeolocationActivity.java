@@ -157,6 +157,11 @@ public abstract class GeolocationActivity extends BaseActivity  {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        locationHelper.destroy();
+        super.onDestroy();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

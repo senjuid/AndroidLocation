@@ -165,6 +165,10 @@ public class LocationHelper {
         }
     }
 
+    public void destroy(){
+        stopLocationUpdates();
+    }
+
     public interface LocationHelperListener{
         void onLocationUpdated(Location location);
         void needChangeToHighAccuracy();
