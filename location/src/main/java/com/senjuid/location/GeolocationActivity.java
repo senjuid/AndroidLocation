@@ -239,6 +239,7 @@ public abstract class GeolocationActivity extends BaseActivity  {
 
     private void showHideLoading(boolean loading){
         if(loading) {
+            tvSearching.setText(getString(R.string.str_mod_loc_searching));
             tvSearching.setVisibility(View.VISIBLE);
             layoutLocationNotFound.setVisibility(View.GONE);
             layoutLocationFound.setVisibility(View.GONE);
