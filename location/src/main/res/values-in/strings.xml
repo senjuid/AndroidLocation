@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Location</string>
     <string name="str_mod_loc_searching">Mencari Lokasi...</string>
     <string name="str_mod_loc_is_correct">Sudah benarkah lokasi absen kamu sekarang?</string>
     <string name="str_mod_loc_location_not_found">Lokasi kamu tidak bisa ditemukan.</string>

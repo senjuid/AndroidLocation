@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Location</string>
     <string name="str_mod_loc_searching">検索場所...</string>
     <string name="str_mod_loc_is_correct">これは正しいです？</string>
     <string name="str_mod_loc_location_not_found">私たちはあなたの場所を見つけることができなかったようです。</string>

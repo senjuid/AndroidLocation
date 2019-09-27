@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Location</string>
     <string name="str_mod_loc_searching">Searching Location...</string>
     <string name="str_mod_loc_is_correct">Is the attendance record location correct?</string>
     <string name="str_mod_loc_location_not_found">We cannot find your location.</string>
