@@ -17,7 +17,6 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
@@ -57,10 +56,6 @@ public abstract class GeolocationActivity extends BaseActivity {
     Button button_location_maps_found_yes;
     Button button_location_maps_found_refresh;
     Button button_solution_location;
-
-    Double mLongitude;
-    Double mLatitude;
-    String mAddress;
 
     View layoutLocationFound;
     View layoutLocationNotFound;
@@ -127,6 +122,14 @@ public abstract class GeolocationActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        // observe live data
+        observeLiveData();
+
+        // hide loading
+        showHideLoading(true);
+    }
+
+    private void observeLiveData(){
         // observe location update
         geolocationViewModel.location.observe(this, new Observer<Location>() {
             @Override
@@ -154,8 +157,16 @@ public abstract class GeolocationActivity extends BaseActivity {
             }
         });
 
-        // hide loading
-        showHideLoading(true);
+        // observe address
+        geolocationViewModel.address.observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String address) {
+                if (address != null){
+                    textView_location_maps_found_description.setText(address);
+                    showComponent();
+                }
+            }
+        });
     }
 
     @Override
@@ -165,12 +176,6 @@ public abstract class GeolocationActivity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onDestroy() {
-        geolocationViewModel.stopLocationUpdates();
-        super.onDestroy();
     }
 
     @Override
@@ -199,22 +204,13 @@ public abstract class GeolocationActivity extends BaseActivity {
             return;
         }
 
+        // show map point
         Point mapPoint = mMap.getProjection().toScreenLocation(new LatLng(location.getLatitude(), location.getLongitude()));
         mapPoint.set(mapPoint.x, mapPoint.y + (mHeight / 5)); // change these values as you need , just hard coded a value if you want you can give it based on a ratio like using DisplayMetrics  as well
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMap.getProjection().fromScreenLocation(mapPoint), 16.0f));
 
-        mLatitude = location.getLatitude();
-        mLongitude = location.getLongitude();
-
-        try {
-            GeoLocator geoLocator = new GeoLocator(getApplicationContext(), GeolocationActivity.this);
-            textView_location_maps_found_description.setText(geoLocator.getAddress());
-            mAddress = geoLocator.getAddress();
-        } catch (Exception ex) {
-            mAddress = "";
-        }
-
-        showComponent();
+        // load address
+        geolocationViewModel.loadAddressFromLocation(location);
     }
 
     private void initComponent() {
@@ -280,8 +276,13 @@ public abstract class GeolocationActivity extends BaseActivity {
     }
 
     private void onYesButtonPressed() {
-        onYesButtonPressed(mLatitude, mLongitude, mAddress);
-        finish();
+        Location location = geolocationViewModel.location.getValue();
+        String address = geolocationViewModel.address.getValue();
+
+        if(location != null) { // make sure location not null
+            onYesButtonPressed(location.getLatitude(), location.getLongitude(), address);
+            finish();
+        }
     }
 
     private void setupPermissions() {
