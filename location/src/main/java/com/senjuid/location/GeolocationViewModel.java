@@ -6,6 +6,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -106,19 +107,31 @@ public class GeolocationViewModel extends ViewModel {
 
     public void loadAddressFromLocation(Location location){
         if(location != null){
-            try {
-                Geocoder geocoder = new Geocoder(wrContext.get(), Locale.getDefault());
-                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                String _address = addresses.get(0).getAddressLine(0);
-                if(!TextUtils.isEmpty(_address)) {
-                    address.postValue(_address);
-                    return;
+            new AsyncTask<Location, Void, String>(){
+                @Override
+                protected String doInBackground(Location... locations) {
+                    try {
+                        Location location = locations[0];
+                        Geocoder geocoder = new Geocoder(wrContext.get(), Locale.getDefault());
+                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                        String _address = addresses.get(0).getAddressLine(0);
+                        if(!TextUtils.isEmpty(_address)) {
+                           return _address;
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return "";
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+                @Override
+                protected void onPostExecute(String s) {
+                    address.postValue(s);
+                }
+            }.execute(location);
+        }else {
+            address.postValue("");
         }
-        address.postValue("");
     }
 
 
