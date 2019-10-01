@@ -107,28 +107,7 @@ public class GeolocationViewModel extends ViewModel {
 
     public void loadAddressFromLocation(Location location){
         if(location != null){
-            new AsyncTask<Location, Void, String>(){
-                @Override
-                protected String doInBackground(Location... locations) {
-                    try {
-                        Location location = locations[0];
-                        Geocoder geocoder = new Geocoder(wrContext.get(), Locale.getDefault());
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                        String _address = addresses.get(0).getAddressLine(0);
-                        if(!TextUtils.isEmpty(_address)) {
-                           return _address;
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return "";
-                }
-
-                @Override
-                protected void onPostExecute(String s) {
-                    address.postValue(s);
-                }
-            }.execute(location);
+            new GetAddressTask(this).execute(location);
         }else {
             address.postValue("");
         }
@@ -193,5 +172,36 @@ public class GeolocationViewModel extends ViewModel {
     protected void onCleared() {
         stopLocationUpdates();
         super.onCleared();
+    }
+
+    private static class GetAddressTask extends AsyncTask<Location, Void, String> {
+
+        WeakReference<GeolocationViewModel> wrViewModel;
+
+        GetAddressTask(GeolocationViewModel viewModel){
+            wrViewModel = new WeakReference<>(viewModel);
+        }
+
+        @Override
+        protected String doInBackground(Location... locations) {
+            try {
+                Context context = wrViewModel.get().wrContext.get();
+                Location location = locations[0];
+                Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                String _address = addresses.get(0).getAddressLine(0);
+                if(!TextUtils.isEmpty(_address)) {
+                    return _address;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String address) {
+            wrViewModel.get().address.postValue(address);
+        }
     }
 }
