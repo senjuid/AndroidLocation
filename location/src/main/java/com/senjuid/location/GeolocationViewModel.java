@@ -3,12 +3,9 @@ package com.senjuid.location;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.common.api.ApiException;
@@ -28,10 +25,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.List;
-import java.util.Locale;
 
 public class GeolocationViewModel extends ViewModel {
 
@@ -47,14 +41,12 @@ public class GeolocationViewModel extends ViewModel {
 
     public MutableLiveData<ResolvableApiException> resolvableApiException = new MutableLiveData<>();
     public MutableLiveData<Location> location = new MutableLiveData<>();
-    public MutableLiveData<String> address = new MutableLiveData<>();
 
 
     public GeolocationViewModel(Context appContext){
         this.wrContext = new WeakReference<>(appContext);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(appContext);
         settingsClient = LocationServices.getSettingsClient(appContext);
-        address.setValue("");
     }
 
 
@@ -103,24 +95,6 @@ public class GeolocationViewModel extends ViewModel {
                     });
         }
     }
-
-    public void loadAddressFromLocation(Location location){
-        if(location != null){
-            try {
-                Geocoder geocoder = new Geocoder(wrContext.get(), Locale.getDefault());
-                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                String _address = addresses.get(0).getAddressLine(0);
-                if(!TextUtils.isEmpty(_address)) {
-                    address.postValue(_address);
-                    return;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        address.postValue("");
-    }
-
 
     // MARK: Private Functions
     private LocationRequest createLocationRequest() {

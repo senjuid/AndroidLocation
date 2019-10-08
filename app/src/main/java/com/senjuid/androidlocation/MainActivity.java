@@ -12,7 +12,7 @@ public class MainActivity extends GeolocationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LocaleHelper.setLocale(this, "ko");
+        LocaleHelper.setLocale(this, "ja");
     }
 
     @Override

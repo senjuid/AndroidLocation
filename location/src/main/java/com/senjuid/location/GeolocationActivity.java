@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationManager;
@@ -29,7 +30,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.senjuid.location.util.BaseActivity;
 
 public abstract class GeolocationActivity extends BaseActivity {
@@ -52,7 +58,6 @@ public abstract class GeolocationActivity extends BaseActivity {
     TextView tvSearching;
 
     TextView textView_location_maps_found_title;
-    TextView textView_location_maps_found_description;
     Button button_location_maps_found_yes;
     Button button_location_maps_found_refresh;
     Button button_solution_location;
@@ -61,6 +66,8 @@ public abstract class GeolocationActivity extends BaseActivity {
     View layoutLocationNotFound;
 
     GeolocationViewModel geolocationViewModel;
+    Circle mapCircle;
+    Marker ownMarker;
 
     OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
         @Override
@@ -156,17 +163,6 @@ public abstract class GeolocationActivity extends BaseActivity {
                 }
             }
         });
-
-        // observe address
-        geolocationViewModel.address.observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String address) {
-                if (address != null){
-                    textView_location_maps_found_description.setText(address);
-                    showComponent();
-                }
-            }
-        });
     }
 
     @Override
@@ -204,13 +200,37 @@ public abstract class GeolocationActivity extends BaseActivity {
             return;
         }
 
+        // My location marker
+        LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
         // show map point
-        Point mapPoint = mMap.getProjection().toScreenLocation(new LatLng(location.getLatitude(), location.getLongitude()));
-        mapPoint.set(mapPoint.x, mapPoint.y + (mHeight / 5)); // change these values as you need , just hard coded a value if you want you can give it based on a ratio like using DisplayMetrics  as well
+        Point mapPoint = mMap.getProjection().toScreenLocation(myLocation);
+        mapPoint.set(mapPoint.x, mapPoint.y); // change these values as you need , just hard coded a value if you want you can give it based on a ratio like using DisplayMetrics  as well
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMap.getProjection().fromScreenLocation(mapPoint), 16.0f));
+        mMap.setMyLocationEnabled(false);
 
-        // load address
-        geolocationViewModel.loadAddressFromLocation(location);
+        // Add my location marker
+        if(ownMarker != null)
+            ownMarker.remove();
+        ownMarker = mMap.addMarker(new MarkerOptions()
+                .position(myLocation)
+                .title(getString(R.string.you))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_emp_map_marker)));
+
+        // Add company location  marker
+        LatLng companyLocation = new LatLng(-6.283693, 106.725453);
+
+        // Add circle
+        if(mapCircle != null)
+            mapCircle.remove();
+        int fillColor = 0x4400FF00;
+        mapCircle = mMap.addCircle(new CircleOptions()
+                .center(companyLocation)
+                .radius(100)
+                .strokeColor(Color.GREEN)
+                .strokeWidth(2f)
+                .fillColor(fillColor));
+
+        showComponent();
     }
 
     private void initComponent() {
@@ -222,7 +242,6 @@ public abstract class GeolocationActivity extends BaseActivity {
         layoutLocationNotFound = findViewById(R.id.layout_location_not_found);
 
         textView_location_maps_found_title = findViewById(R.id.textView_location_maps_found_title);
-        textView_location_maps_found_description = findViewById(R.id.textView_location_maps_found_description);
         button_location_maps_found_yes = findViewById(R.id.button_location_maps_found_yes);
         button_location_maps_found_refresh = findViewById(R.id.button_location_maps_found_refresh);
 
@@ -277,10 +296,9 @@ public abstract class GeolocationActivity extends BaseActivity {
 
     private void onYesButtonPressed() {
         Location location = geolocationViewModel.location.getValue();
-        String address = geolocationViewModel.address.getValue();
 
         if(location != null) { // make sure location not null
-            onYesButtonPressed(location.getLatitude(), location.getLongitude(), address);
+            onYesButtonPressed(location.getLatitude(), location.getLongitude(), "");
             finish();
         }
     }
