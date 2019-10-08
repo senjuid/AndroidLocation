@@ -69,12 +69,17 @@ public abstract class GeolocationActivity extends BaseActivity {
     Circle mapCircle;
     Marker ownMarker;
 
+    // Extras
+    double workLat;
+    double workLon;
+    double workRadius;
+
     OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
 
-            LatLng sydney = new LatLng(-6.1753924, 106.8271528);
+            LatLng sydney = new LatLng(workLat, workLon);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 16.0f));
 
             if (ActivityCompat.checkSelfPermission(GeolocationActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -89,13 +94,8 @@ public abstract class GeolocationActivity extends BaseActivity {
             DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
             mHeight = displayMetrics.heightPixels;
 
-
-            Location location = getIntent().getParcelableExtra("current_location");
-            if (location != null) {
-                setMyLocation(location);
-            } else {
-                myLocation();
-            }
+            // get location update
+            myLocation();
         }
     };
 
@@ -104,6 +104,12 @@ public abstract class GeolocationActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        // get extras
+        workLat = getIntent().getDoubleExtra("work_lat", -6.1753924); // Monas lat
+        workLon = getIntent().getDoubleExtra("work_lon", 106.8271528); // Monas lon
+        workRadius = getIntent().getIntExtra("work_radius", 50); //default radius
+
+        // create view model
         geolocationViewModel = ViewModelProviders
                 .of(this, new GeolocationViewModelFactory(getApplicationContext()))
                 .get(GeolocationViewModel.class);
@@ -217,7 +223,7 @@ public abstract class GeolocationActivity extends BaseActivity {
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_emp_map_marker)));
 
         // Add company location  marker
-        LatLng companyLocation = new LatLng(-6.283693, 106.725453);
+        LatLng companyLocation = new LatLng(workLat, workLon);
 
         // Add circle
         if(mapCircle != null)
@@ -225,7 +231,7 @@ public abstract class GeolocationActivity extends BaseActivity {
         int fillColor = 0x4400FF00;
         mapCircle = mMap.addCircle(new CircleOptions()
                 .center(companyLocation)
-                .radius(100)
+                .radius(workRadius)
                 .strokeColor(Color.GREEN)
                 .strokeWidth(2f)
                 .fillColor(fillColor));
