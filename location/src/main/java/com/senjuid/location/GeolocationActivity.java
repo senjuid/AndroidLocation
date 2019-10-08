@@ -107,7 +107,7 @@ public abstract class GeolocationActivity extends BaseActivity {
         // get extras
         workLat = getIntent().getDoubleExtra("work_lat", -6.1753924); // Monas lat
         workLon = getIntent().getDoubleExtra("work_lon", 106.8271528); // Monas lon
-        workRadius = getIntent().getIntExtra("work_radius", 50); //default radius
+        workRadius = getIntent().getIntExtra("work_radius", 0); //default radius without geo fencing
 
         // create view model
         geolocationViewModel = ViewModelProviders
@@ -228,13 +228,15 @@ public abstract class GeolocationActivity extends BaseActivity {
         // Add circle
         if(mapCircle != null)
             mapCircle.remove();
-        int fillColor = 0x4400FF00;
-        mapCircle = mMap.addCircle(new CircleOptions()
-                .center(companyLocation)
-                .radius(workRadius)
-                .strokeColor(Color.GREEN)
-                .strokeWidth(2f)
-                .fillColor(fillColor));
+        if(workRadius > 0) { // add circle radius only if geo fencing active
+            int fillColor = 0x4400FF00;
+            mapCircle = mMap.addCircle(new CircleOptions()
+                    .center(companyLocation)
+                    .radius(workRadius)
+                    .strokeColor(Color.GREEN)
+                    .strokeWidth(2f)
+                    .fillColor(fillColor));
+        }
 
         showComponent();
     }
