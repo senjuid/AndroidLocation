@@ -5,4 +5,5 @@
     <string name="str_mod_loc_refresh">リフレッシュ</string>
     <string name="str_mod_loc_yes">はい</string>
     <string name="str_mod_loc_high_accuracy">出席を記録するには、GPSで高精度を有効にする必要があります</string>
+    <string name="you">あなた</string>
 </resources>

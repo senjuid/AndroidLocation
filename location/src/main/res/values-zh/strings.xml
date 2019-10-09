@@ -5,4 +5,5 @@
     <string name="str_mod_loc_refresh">刷新</string>
     <string name="str_mod_loc_yes">是</string>
     <string name="str_mod_loc_high_accuracy">GPS必须启用“高精度”才能记录出勤</string>
+    <string name="you">您</string>
 </resources>

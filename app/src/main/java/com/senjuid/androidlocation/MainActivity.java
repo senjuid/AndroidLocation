@@ -1,23 +1,28 @@
 package com.senjuid.androidlocation;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.support.v7.app.AppCompatActivity;
 
-import com.senjuid.location.GeolocationActivity;
 import com.senjuid.location.util.LocaleHelper;
 
-public class MainActivity extends GeolocationActivity {
+public class MainActivity extends AppCompatActivity {
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LocaleHelper.setLocale(this, "ko");
-    }
 
-    @Override
-    public void onYesButtonPressed(Double latitude, Double longitude, String address) {
-        Toast.makeText(this, latitude + "," + longitude + " " + address, Toast.LENGTH_SHORT).show();
-    }
+        // set language
+        LocaleHelper.setLocale(this, "in");
 
+        // intent with bundle
+        Intent i = new Intent(this, MapActivity.class);
+        i.putExtra("work_lat", -6.283693);
+        i.putExtra("work_lon", 106.725453);
+        i.putExtra("work_radius", 100);
+        startActivity(i);
+
+        finish();
+    }
 }

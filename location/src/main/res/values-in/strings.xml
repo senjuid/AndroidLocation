@@ -1,8 +1,9 @@
 <resources>
     <string name="str_mod_loc_searching">Mencari Lokasi...</string>
-    <string name="str_mod_loc_is_correct">Sudah benarkah lokasi absen kamu sekarang?</string>
+    <string name="str_mod_loc_is_correct">Sudah benarkah titik lokasi absen kamu sekarang?</string>
     <string name="str_mod_loc_location_not_found">Lokasi kamu tidak bisa ditemukan.</string>
     <string name="str_mod_loc_refresh">Refresh</string>
     <string name="str_mod_loc_yes">Ya</string>
-    <string name="str_mod_loc_high_accuracy">GPS must have High Accuracy enabled to record Attendance</string>
+    <string name="str_mod_loc_high_accuracy">GPS harus mengaktifkan Akurasi Tinggi untuk merekam Kehadiran</string>
+    <string name="you">Kamu</string>
 </resources>

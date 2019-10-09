@@ -1,8 +1,9 @@
 <resources>
     <string name="str_mod_loc_searching">Searching Location...</string>
-    <string name="str_mod_loc_is_correct">Is the attendance record location correct?</string>
+    <string name="str_mod_loc_is_correct">Is the attendance location point correct?</string>
     <string name="str_mod_loc_location_not_found">We cannot find your location.</string>
     <string name="str_mod_loc_refresh">Refresh</string>
     <string name="str_mod_loc_yes">Yes</string>
     <string name="str_mod_loc_high_accuracy">GPS must have High Accuracy enabled to record Attendance</string>
+    <string name="you">You</string>
 </resources>
