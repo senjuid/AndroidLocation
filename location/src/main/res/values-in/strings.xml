@@ -6,4 +6,5 @@
     <string name="str_mod_loc_yes">Ya</string>
     <string name="str_mod_loc_high_accuracy">GPS harus mengaktifkan Akurasi Tinggi untuk merekam Kehadiran</string>
     <string name="you">Kamu</string>
+    <string name="your_company">Perusahaan Kamu</string>
 </resources>

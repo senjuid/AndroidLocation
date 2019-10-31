@@ -6,4 +6,5 @@
     <string name="str_mod_loc_yes">ใช่</string>
     <string name="str_mod_loc_high_accuracy">GPS ต้องเปิดใช้งานความแม่นยำสูงเพื่อบันทึกการเข้าร่วม</string>
     <string name="you">คุณ</string>
+    <string name="your_company">บริษัท ของคุณ</string>
 </resources>
