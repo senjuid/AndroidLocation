@@ -6,4 +6,5 @@
     <string name="str_mod_loc_yes">예</string>
     <string name="str_mod_loc_high_accuracy">출석을 기록하려면 GPS에 높은 정확도가 활성화되어 있어야합니다.</string>
     <string name="you">당신</string>
+    <string name="your_company">당신의 회사</string>
 </resources>

@@ -6,4 +6,5 @@
     <string name="str_mod_loc_yes">Yes</string>
     <string name="str_mod_loc_high_accuracy">GPS must have High Accuracy enabled to record Attendance</string>
     <string name="you">You</string>
+    <string name="your_company">Your company</string>
 </resources>

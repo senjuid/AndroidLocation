@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -37,6 +38,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.senjuid.location.util.BaseActivity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class GeolocationActivity extends BaseActivity {
 
@@ -66,10 +73,14 @@ public abstract class GeolocationActivity extends BaseActivity {
     View layoutLocationNotFound;
 
     GeolocationViewModel geolocationViewModel;
-    Circle mapCircle;
+//    Circle mapCircle;
+    List<Marker> companyMarkerList = new ArrayList<>();
+    List<Circle> companyRadiusList = new ArrayList<>();
     Marker ownMarker;
+//    Marker ownMarkerCompany;
 
     // Extras
+    String data;
     double workLat;
     double workLon;
     double workRadius;
@@ -104,10 +115,9 @@ public abstract class GeolocationActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        // get extras
-        workLat = getIntent().getDoubleExtra("work_lat", -6.1753924); // Monas lat
-        workLon = getIntent().getDoubleExtra("work_lon", 106.8271528); // Monas lon
-        workRadius = getIntent().getIntExtra("work_radius", 0); //default radius without geo fencing
+
+//        workLon = getIntent().getDoubleExtra("work_lon", 106.8271528); // Monas lon
+//        workRadius = getIntent().getIntExtra("work_radius", 0); //default radius without geo fencing
 
         // create view model
         geolocationViewModel = ViewModelProviders
@@ -142,11 +152,38 @@ public abstract class GeolocationActivity extends BaseActivity {
         showHideLoading(true);
     }
 
-    private void observeLiveData(){
+    // Add company location  marke and radius
+    private void addCompanyLocation(JSONObject data) throws JSONException {
+        LatLng companyLocation = new LatLng(data.getDouble("work_lat"), data.getDouble("work_lon"));
+
+        // Add circle
+        if (data.getDouble("work_radius") > 0) { // add circle radius only if geo fencing active
+
+            //add marker
+            Marker ownMarkerCompany = mMap.addMarker(new MarkerOptions()
+                    .position(companyLocation)
+                    .title(getString(R.string.your_company))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_company_marker)));
+
+            int fillColor = 0x4400FF00;
+            Circle mapCircle = mMap.addCircle(new CircleOptions()
+                    .center(companyLocation)
+                    .radius(data.getDouble("work_radius"))
+                    .strokeColor(Color.GREEN)
+                    .strokeWidth(2f)
+                    .fillColor(fillColor));
+
+            companyMarkerList.add(ownMarkerCompany);
+            companyRadiusList.add(mapCircle);
+        }
+    }
+
+    private void observeLiveData() {
         // observe location update
         geolocationViewModel.location.observe(this, new Observer<Location>() {
             @Override
             public void onChanged(@Nullable Location location) {
+                Log.d("set location location", location.toString());
                 setMyLocation(location);
             }
         });
@@ -185,7 +222,7 @@ public abstract class GeolocationActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CHECK_SETTINGS && resultCode == RESULT_OK) {
             geolocationViewModel.startUpdateLocation();
-        }else{
+        } else {
             showHideLoading(false);
             setMyLocation(null);
         }
@@ -199,6 +236,7 @@ public abstract class GeolocationActivity extends BaseActivity {
         showHideLoading(true);
         geolocationViewModel.startUpdateLocation();
     }
+
 
     public void setMyLocation(Location location) {
         if (location == null) {
@@ -214,29 +252,55 @@ public abstract class GeolocationActivity extends BaseActivity {
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMap.getProjection().fromScreenLocation(mapPoint), 16.0f));
         mMap.setMyLocationEnabled(false);
 
-        // Add my location marker
-        if(ownMarker != null)
+//         Add my location marker
+        if (ownMarker != null)
             ownMarker.remove();
         ownMarker = mMap.addMarker(new MarkerOptions()
                 .position(myLocation)
                 .title(getString(R.string.you))
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_emp_map_marker)));
 
-        // Add company location  marker
-        LatLng companyLocation = new LatLng(workLat, workLon);
+//        // Add company location  marker
+//        LatLng companyLocation = new LatLng(workLat, workLon);
+//
+//        // Add circle
+////        if (mapCircle != null)
+////            mapCircle.remove();
+//        if (workRadius > 0) { // add circle radius only if geo fencing active
+//            int fillColor = 0x4400FF00;
+//            mapCircle = mMap.addCircle(new CircleOptions()
+//                    .center(companyLocation)
+//                    .radius(workRadius)
+//                    .strokeColor(Color.GREEN)
+//                    .strokeWidth(2f)
+//                    .fillColor(fillColor));
+//        }
 
-        // Add circle
-        if(mapCircle != null)
-            mapCircle.remove();
-        if(workRadius > 0) { // add circle radius only if geo fencing active
-            int fillColor = 0x4400FF00;
-            mapCircle = mMap.addCircle(new CircleOptions()
-                    .center(companyLocation)
-                    .radius(workRadius)
-                    .strokeColor(Color.GREEN)
-                    .strokeWidth(2f)
-                    .fillColor(fillColor));
+        // get extras data radius array
+        data = getIntent().getStringExtra("data"); // Monas lat
+        JSONObject dataDummy = null;
+        JSONArray dataDummy2 = null;
+        try {
+            dataDummy = new JSONObject(data);
+            dataDummy2 = dataDummy.getJSONArray("data");
+
+            for(int i=0; i<companyMarkerList.size();i++){
+                companyMarkerList.get(i).remove();
+                companyRadiusList.get(i).remove();
+            }
+            companyRadiusList.clear();
+            companyMarkerList.clear();
+
+            for (int i = 0; i < dataDummy2.length(); i++) {
+                JSONObject obj = dataDummy2.getJSONObject(i);
+                Log.d("data ddd", obj.toString());
+                addCompanyLocation(obj);
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+
 
         showComponent();
     }
@@ -305,7 +369,7 @@ public abstract class GeolocationActivity extends BaseActivity {
     private void onYesButtonPressed() {
         Location location = geolocationViewModel.location.getValue();
 
-        if(location != null) { // make sure location not null
+        if (location != null) { // make sure location not null
             onYesButtonPressed(location.getLatitude(), location.getLongitude(), "");
             finish();
         }
