@@ -42,6 +42,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class GeolocationActivity extends BaseActivity {
 
     public static Integer PERMISSIONS_REQUEST_CODE = 1;
@@ -70,9 +73,11 @@ public abstract class GeolocationActivity extends BaseActivity {
     View layoutLocationNotFound;
 
     GeolocationViewModel geolocationViewModel;
-    Circle mapCircle;
+//    Circle mapCircle;
+    List<Marker> companyMarkerList = new ArrayList<>();
+    List<Circle> companyRadiusList = new ArrayList<>();
     Marker ownMarker;
-    Marker ownMarkerCompany;
+//    Marker ownMarkerCompany;
 
     // Extras
     String data;
@@ -151,21 +156,25 @@ public abstract class GeolocationActivity extends BaseActivity {
     private void addCompanyLocation(JSONObject data) throws JSONException {
         LatLng companyLocation = new LatLng(data.getDouble("work_lat"), data.getDouble("work_lon"));
 
-        //add marker
-        ownMarkerCompany = mMap.addMarker(new MarkerOptions()
-                .position(companyLocation)
-                .title(getString(R.string.your_company))
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_company_marker)));
-
         // Add circle
         if (data.getDouble("work_radius") > 0) { // add circle radius only if geo fencing active
+
+            //add marker
+            Marker ownMarkerCompany = mMap.addMarker(new MarkerOptions()
+                    .position(companyLocation)
+                    .title(getString(R.string.your_company))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_company_marker)));
+
             int fillColor = 0x4400FF00;
-            mapCircle = mMap.addCircle(new CircleOptions()
+            Circle mapCircle = mMap.addCircle(new CircleOptions()
                     .center(companyLocation)
                     .radius(data.getDouble("work_radius"))
                     .strokeColor(Color.GREEN)
                     .strokeWidth(2f)
                     .fillColor(fillColor));
+
+            companyMarkerList.add(ownMarkerCompany);
+            companyRadiusList.add(mapCircle);
         }
     }
 
@@ -274,6 +283,14 @@ public abstract class GeolocationActivity extends BaseActivity {
         try {
             dataDummy = new JSONObject(data);
             dataDummy2 = dataDummy.getJSONArray("data");
+
+            for(int i=0; i<companyMarkerList.size();i++){
+                companyMarkerList.get(i).remove();
+                companyRadiusList.get(i).remove();
+            }
+            companyRadiusList.clear();
+            companyMarkerList.clear();
+
             for (int i = 0; i < dataDummy2.length(); i++) {
                 JSONObject obj = dataDummy2.getJSONObject(i);
                 Log.d("data ddd", obj.toString());
