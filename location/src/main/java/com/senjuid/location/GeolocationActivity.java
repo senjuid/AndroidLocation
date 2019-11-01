@@ -72,6 +72,7 @@ public abstract class GeolocationActivity extends BaseActivity {
     GeolocationViewModel geolocationViewModel;
     Circle mapCircle;
     Marker ownMarker;
+    Marker ownMarkerCompany;
 
     // Extras
     String data;
@@ -146,18 +147,17 @@ public abstract class GeolocationActivity extends BaseActivity {
         showHideLoading(true);
     }
 
+    // Add company location  marke and radius
     private void addCompanyLocation(JSONObject data) throws JSONException {
-        // Add company location  marker
         LatLng companyLocation = new LatLng(data.getDouble("work_lat"), data.getDouble("work_lon"));
 
-        ownMarker = mMap.addMarker(new MarkerOptions()
+        //add marker
+        ownMarkerCompany = mMap.addMarker(new MarkerOptions()
                 .position(companyLocation)
-                .title(getString(R.string.you))
+                .title(getString(R.string.your_company))
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_company_marker)));
 
         // Add circle
-//        if (mapCircle != null)
-//            mapCircle.remove();
         if (data.getDouble("work_radius") > 0) { // add circle radius only if geo fencing active
             int fillColor = 0x4400FF00;
             mapCircle = mMap.addCircle(new CircleOptions()
@@ -243,9 +243,9 @@ public abstract class GeolocationActivity extends BaseActivity {
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMap.getProjection().fromScreenLocation(mapPoint), 16.0f));
         mMap.setMyLocationEnabled(false);
 
-        // Add my location marker
-//        if (ownMarker != null)
-//            ownMarker.remove();
+//         Add my location marker
+        if (ownMarker != null)
+            ownMarker.remove();
         ownMarker = mMap.addMarker(new MarkerOptions()
                 .position(myLocation)
                 .title(getString(R.string.you))

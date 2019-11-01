@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         i.putExtra("data", dataDummy);
         startActivity(i);
         finish();
+
 //        i.putExtra("work_lat", -6.1753924);
 //        i.putExtra("work_lon", 106.8271528);
 //        i.putExtra("work_radius", 500);
