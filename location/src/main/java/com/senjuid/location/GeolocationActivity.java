@@ -278,29 +278,31 @@ public abstract class GeolocationActivity extends BaseActivity {
 
         // get extras data radius array
         data = getIntent().getStringExtra("data"); // Monas lat
-        JSONObject dataDummy = null;
-        JSONArray dataDummy2 = null;
-        try {
-            dataDummy = new JSONObject(data);
-            dataDummy2 = dataDummy.getJSONArray("data");
 
-            for(int i=0; i<companyMarkerList.size();i++){
-                companyMarkerList.get(i).remove();
-                companyRadiusList.get(i).remove();
+        if(data != null) {
+            JSONObject dataDummy = null;
+            JSONArray dataDummy2 = null;
+            try {
+                dataDummy = new JSONObject(data);
+                dataDummy2 = dataDummy.getJSONArray("data");
+
+                for(int i=0; i<companyMarkerList.size();i++){
+                    companyMarkerList.get(i).remove();
+                    companyRadiusList.get(i).remove();
+                }
+                companyRadiusList.clear();
+                companyMarkerList.clear();
+
+                for (int i = 0; i < dataDummy2.length(); i++) {
+                    JSONObject obj = dataDummy2.getJSONObject(i);
+                    Log.d("data ddd", obj.toString());
+                    addCompanyLocation(obj);
+
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-            companyRadiusList.clear();
-            companyMarkerList.clear();
-
-            for (int i = 0; i < dataDummy2.length(); i++) {
-                JSONObject obj = dataDummy2.getJSONObject(i);
-                Log.d("data ddd", obj.toString());
-                addCompanyLocation(obj);
-
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
-
 
         showComponent();
     }
