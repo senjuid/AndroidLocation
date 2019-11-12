@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.senjuid.location.util.BaseActivity;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,7 +74,7 @@ public abstract class GeolocationActivity extends BaseActivity {
     View layoutLocationNotFound;
 
     GeolocationViewModel geolocationViewModel;
-//    Circle mapCircle;
+    //    Circle mapCircle;
     List<Marker> companyMarkerList = new ArrayList<>();
     List<Circle> companyRadiusList = new ArrayList<>();
     Marker ownMarker;
@@ -84,6 +85,10 @@ public abstract class GeolocationActivity extends BaseActivity {
     double workLat;
     double workLon;
     double workRadius;
+
+    // Label
+    String label1;
+    String label2;
 
     OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
         @Override
@@ -115,9 +120,8 @@ public abstract class GeolocationActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-
-//        workLon = getIntent().getDoubleExtra("work_lon", 106.8271528); // Monas lon
-//        workRadius = getIntent().getIntExtra("work_radius", 0); //default radius without geo fencing
+        label1 = getIntent().getStringExtra("message1");
+        label2 = getIntent().getStringExtra("message2");
 
         // create view model
         geolocationViewModel = ViewModelProviders
@@ -199,7 +203,11 @@ public abstract class GeolocationActivity extends BaseActivity {
                         // show message
                         showHideLoading(false);
                         tvSearching.setVisibility(View.VISIBLE);
-                        tvSearching.setText(getString(R.string.str_mod_loc_high_accuracy));
+                        if(getIntent().getStringExtra("message2") != null) {
+                            tvSearching.setText(getIntent().getStringExtra("message2"));
+                        } else {
+                            tvSearching.setText(getString(R.string.str_mod_loc_high_accuracy));
+                        }
                     } catch (IntentSender.SendIntentException ex) {
                         ex.printStackTrace();
                     }
@@ -239,7 +247,7 @@ public abstract class GeolocationActivity extends BaseActivity {
 
 
     public void setMyLocation(Location location) {
-        if (location == null) {
+        if (location == null || mMap == null) {
             hideComponent();
             return;
         }
@@ -252,41 +260,25 @@ public abstract class GeolocationActivity extends BaseActivity {
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMap.getProjection().fromScreenLocation(mapPoint), 16.0f));
         mMap.setMyLocationEnabled(false);
 
-//         Add my location marker
+        // Add my location marker
         if (ownMarker != null)
             ownMarker.remove();
-        ownMarker = mMap.addMarker(new MarkerOptions()
+            ownMarker = mMap.addMarker(new MarkerOptions()
                 .position(myLocation)
                 .title(getString(R.string.you))
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_emp_map_marker)));
 
-//        // Add company location  marker
-//        LatLng companyLocation = new LatLng(workLat, workLon);
-//
-//        // Add circle
-////        if (mapCircle != null)
-////            mapCircle.remove();
-//        if (workRadius > 0) { // add circle radius only if geo fencing active
-//            int fillColor = 0x4400FF00;
-//            mapCircle = mMap.addCircle(new CircleOptions()
-//                    .center(companyLocation)
-//                    .radius(workRadius)
-//                    .strokeColor(Color.GREEN)
-//                    .strokeWidth(2f)
-//                    .fillColor(fillColor));
-//        }
-
         // get extras data radius array
         data = getIntent().getStringExtra("data"); // Monas lat
 
-        if(data != null) {
+        if (data != null) {
             JSONObject dataDummy = null;
             JSONArray dataDummy2 = null;
             try {
                 dataDummy = new JSONObject(data);
                 dataDummy2 = dataDummy.getJSONArray("data");
 
-                for(int i=0; i<companyMarkerList.size();i++){
+                for (int i = 0; i < companyMarkerList.size(); i++) {
                     companyMarkerList.get(i).remove();
                     companyRadiusList.get(i).remove();
                 }
@@ -316,6 +308,10 @@ public abstract class GeolocationActivity extends BaseActivity {
         layoutLocationNotFound = findViewById(R.id.layout_location_not_found);
 
         textView_location_maps_found_title = findViewById(R.id.textView_location_maps_found_title);
+        if(getIntent().getStringExtra("message1") != null) {
+            textView_location_maps_found_title.setText(getIntent().getStringExtra("message1"));
+        }
+
         button_location_maps_found_yes = findViewById(R.id.button_location_maps_found_yes);
         button_location_maps_found_refresh = findViewById(R.id.button_location_maps_found_refresh);
 
