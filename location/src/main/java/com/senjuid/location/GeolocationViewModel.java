@@ -42,6 +42,7 @@ public class GeolocationViewModel extends ViewModel {
     public MutableLiveData<ResolvableApiException> resolvableApiException = new MutableLiveData<>();
     public MutableLiveData<Location> location = new MutableLiveData<>();
 
+    private boolean isFirstRequest = true;
 
     public GeolocationViewModel(Context appContext){
         this.wrContext = new WeakReference<>(appContext);
@@ -52,6 +53,17 @@ public class GeolocationViewModel extends ViewModel {
 
     // MARK: Public Functions
     public void startUpdateLocation(){
+        if(isFirstRequest) {
+            isFirstRequest = false;
+
+            fusedLocationProviderClient.getLastLocation()
+                .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        GeolocationViewModel.this.location.setValue(location);
+                    }
+                });
+        }
 
         locationRequest = createLocationRequest();
         locationSettingsRequest = buildLocationSettingsRequest(locationRequest);
@@ -131,13 +143,13 @@ public class GeolocationViewModel extends ViewModel {
                 fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
-                        GeolocationViewModel.this.location.postValue(location);
+                        GeolocationViewModel.this.location.setValue(location);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        GeolocationViewModel.this.location.postValue(null);
+                        GeolocationViewModel.this.location.setValue(null);
                     }
                 });
             }
@@ -146,7 +158,7 @@ public class GeolocationViewModel extends ViewModel {
         @Override
         public void onLocationResult(LocationResult locationResult) {
             stopLocationUpdates();
-            GeolocationViewModel.this.location.postValue(locationResult.getLastLocation());
+            GeolocationViewModel.this.location.setValue(locationResult.getLastLocation());
         }
     };
 

@@ -26,6 +26,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -122,6 +124,19 @@ public abstract class GeolocationActivity extends BaseActivity {
 
         label1 = getIntent().getStringExtra("message1");
         label2 = getIntent().getStringExtra("message2");
+
+        // check google api available
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        if(googleApiAvailability.isGooglePlayServicesAvailable(this) != ConnectionResult.SUCCESS){
+            googleApiAvailability.getErrorDialog(this, 404, 200, new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    dialog.dismiss();
+                    finish();
+                }
+            }).show();
+            return;
+        }
 
         // create view model
         geolocationViewModel = ViewModelProviders
