@@ -68,6 +68,7 @@ public abstract class GeolocationActivity extends BaseActivity {
     TextView tvSearching;
 
     TextView textView_location_maps_found_title;
+    TextView tvAccuracy;
     Button button_location_maps_found_yes;
     Button button_location_maps_found_refresh;
     Button button_solution_location;
@@ -76,7 +77,7 @@ public abstract class GeolocationActivity extends BaseActivity {
     View layoutLocationNotFound;
 
     GeolocationViewModel geolocationViewModel;
-    //    Circle mapCircle;
+    Circle accuracyCircle;
     List<Marker> companyMarkerList = new ArrayList<>();
     List<Circle> companyRadiusList = new ArrayList<>();
     Marker ownMarker;
@@ -275,6 +276,17 @@ public abstract class GeolocationActivity extends BaseActivity {
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMap.getProjection().fromScreenLocation(mapPoint), 16.0f));
         mMap.setMyLocationEnabled(false);
 
+        // Add accuracy circle
+        if(accuracyCircle != null){
+            accuracyCircle.remove();
+        }
+        accuracyCircle = mMap.addCircle(new CircleOptions()
+                .center(myLocation)
+                .radius(location.getAccuracy())
+                .strokeColor(0x660000FF)
+                .strokeWidth(3f)
+                .fillColor(0x220000FF));
+
         // Add my location marker
         if (ownMarker != null)
             ownMarker.remove();
@@ -311,6 +323,9 @@ public abstract class GeolocationActivity extends BaseActivity {
             }
         }
 
+        // set accuracy
+        tvAccuracy.setText(geolocationViewModel.formatAccuracy(getString(R.string.str_accuracy), location));
+
         showComponent();
     }
 
@@ -321,6 +336,7 @@ public abstract class GeolocationActivity extends BaseActivity {
         button_solution_location = findViewById(R.id.button_solution_location);
         layoutLocationFound = findViewById(R.id.layout_location_found);
         layoutLocationNotFound = findViewById(R.id.layout_location_not_found);
+        tvAccuracy = findViewById(R.id.tv_accuracy);
 
         textView_location_maps_found_title = findViewById(R.id.textView_location_maps_found_title);
         if(getIntent().getStringExtra("message1") != null) {

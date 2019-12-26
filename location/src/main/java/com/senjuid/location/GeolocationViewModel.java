@@ -108,6 +108,15 @@ public class GeolocationViewModel extends ViewModel {
         }
     }
 
+    public String formatAccuracy(String wording, Location location){
+        float accuracy;
+        if(location != null){
+            accuracy = location.getAccuracy();
+            return String.format(wording, (int)accuracy);
+        }
+        return "";
+    }
+
     // MARK: Private Functions
     private LocationRequest createLocationRequest() {
         // Create the location request to start receiving updates
@@ -138,7 +147,7 @@ public class GeolocationViewModel extends ViewModel {
         @Override
         public void onLocationAvailability(LocationAvailability locationAvailability) {
             if(!locationAvailability.isLocationAvailable()){
-                stopLocationUpdates();
+//                stopLocationUpdates();
 
                 fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
                     @Override
@@ -157,7 +166,7 @@ public class GeolocationViewModel extends ViewModel {
 
         @Override
         public void onLocationResult(LocationResult locationResult) {
-            stopLocationUpdates();
+//            stopLocationUpdates();
             GeolocationViewModel.this.location.setValue(locationResult.getLastLocation());
         }
     };
