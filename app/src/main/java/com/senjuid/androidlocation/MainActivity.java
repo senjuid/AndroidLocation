@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
 
         // intent with bundle
         Intent i = new Intent(this, MapActivity.class);
-        String dataDummy = "{data:[{work_lat: -6.202394, work_lon: 106.652710, work_radius: 1000 },{work_lat: -6.175110, work_lon: 106.865036, work_radius: 1000 }]}";
+        String dataDummy = "{data:[{work_lat: -6.283693, work_lon: 106.725430, work_radius: 0.4 },{work_lat: -6.175110, work_lon: 106.865036, work_radius: 0.5 }]}";
         i.putExtra("data", dataDummy);
         startActivity(i);
         finish();

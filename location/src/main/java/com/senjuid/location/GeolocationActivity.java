@@ -34,19 +34,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.senjuid.location.util.BaseActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class GeolocationActivity extends BaseActivity {
 
@@ -77,16 +72,11 @@ public abstract class GeolocationActivity extends BaseActivity {
     View layoutLocationNotFound;
 
     GeolocationViewModel geolocationViewModel;
-    List<Marker> companyMarkerList = new ArrayList<>();
-    List<Circle> companyRadiusList = new ArrayList<>();
-//    Marker ownMarker;
-//    Marker ownMarkerCompany;
 
     // Extras
-    String data;
+    String workLocationData;
     double workLat;
     double workLon;
-    double workRadius;
 
     // Label
     String label1;
@@ -96,6 +86,27 @@ public abstract class GeolocationActivity extends BaseActivity {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             mMap = googleMap;
+
+            workLat = -6.174793; // default lat
+            workLon = 106.827144; // default lon
+            if(workLocationData != null){
+                try{
+                    JSONObject data = new JSONObject(workLocationData);
+                    JSONArray locArray = data.getJSONArray("data");
+
+                    if(locArray != null && locArray.length()> 0){
+                        for(int i=0;i<locArray.length();i++){
+                            addCompanyLocation(locArray.getJSONObject(i));
+
+                            // set start location
+                            if(i == 0){
+                                workLat = locArray.getJSONObject(i).optDouble("work_lat");
+                                workLon = locArray.getJSONObject(i).optDouble("work_lon");
+                            }
+                        }
+                    }
+                }catch (JSONException je){}
+            }
 
             LatLng sydney = new LatLng(workLat, workLon);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 16.0f));
@@ -124,6 +135,7 @@ public abstract class GeolocationActivity extends BaseActivity {
 
         label1 = getIntent().getStringExtra("message1");
         label2 = getIntent().getStringExtra("message2");
+        workLocationData = getIntent().getStringExtra("data");
 
         // check google api available
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
@@ -171,7 +183,7 @@ public abstract class GeolocationActivity extends BaseActivity {
         showHideLoading(true);
     }
 
-    // Add company location  marke and radius
+    // Add company location  marker and radius
     private void addCompanyLocation(JSONObject data) throws JSONException {
         LatLng companyLocation = new LatLng(data.getDouble("work_lat"), data.getDouble("work_lon"));
 
@@ -179,21 +191,19 @@ public abstract class GeolocationActivity extends BaseActivity {
         if (data.getDouble("work_radius") > 0) { // add circle radius only if geo fencing active
 
             //add marker
-            Marker ownMarkerCompany = mMap.addMarker(new MarkerOptions()
+            mMap.addMarker(new MarkerOptions()
                     .position(companyLocation)
                     .title(getString(R.string.your_company))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_company_marker)));
 
             int fillColor = 0x4400FF00;
-            Circle mapCircle = mMap.addCircle(new CircleOptions()
+            double radius = data.getDouble("work_radius") * 1000;
+            mMap.addCircle(new CircleOptions()
                     .center(companyLocation)
-                    .radius(data.getDouble("work_radius"))
+                    .radius(radius)
                     .strokeColor(Color.GREEN)
                     .strokeWidth(2f)
                     .fillColor(fillColor));
-
-            companyMarkerList.add(ownMarkerCompany);
-            companyRadiusList.add(mapCircle);
         }
     }
 
@@ -274,42 +284,6 @@ public abstract class GeolocationActivity extends BaseActivity {
         mapPoint.set(mapPoint.x, mapPoint.y); // change these values as you need , just hard coded a value if you want you can give it based on a ratio like using DisplayMetrics  as well
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMap.getProjection().fromScreenLocation(mapPoint), 16.0f));
         mMap.setMyLocationEnabled(true);
-
-        // Add my location marker
-//        if (ownMarker != null)
-//            ownMarker.remove();
-//            ownMarker = mMap.addMarker(new MarkerOptions()
-//                .position(myLocation)
-//                .title(getString(R.string.you))
-//                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_emp_map_marker)));
-
-        // get extras data radius array
-        data = getIntent().getStringExtra("data"); // Monas lat
-
-        if (data != null) {
-            JSONObject dataDummy = null;
-            JSONArray dataDummy2 = null;
-            try {
-                dataDummy = new JSONObject(data);
-                dataDummy2 = dataDummy.getJSONArray("data");
-
-                for (int i = 0; i < companyMarkerList.size(); i++) {
-                    companyMarkerList.get(i).remove();
-                    companyRadiusList.get(i).remove();
-                }
-                companyRadiusList.clear();
-                companyMarkerList.clear();
-
-                for (int i = 0; i < dataDummy2.length(); i++) {
-                    JSONObject obj = dataDummy2.getJSONObject(i);
-                    Log.d("data ddd", obj.toString());
-                    addCompanyLocation(obj);
-
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
 
         // set accuracy
         tvAccuracy.setText(geolocationViewModel.formatAccuracy(getString(R.string.str_accuracy), location));
