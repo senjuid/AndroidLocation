@@ -77,10 +77,9 @@ public abstract class GeolocationActivity extends BaseActivity {
     View layoutLocationNotFound;
 
     GeolocationViewModel geolocationViewModel;
-    Circle accuracyCircle;
     List<Marker> companyMarkerList = new ArrayList<>();
     List<Circle> companyRadiusList = new ArrayList<>();
-    Marker ownMarker;
+//    Marker ownMarker;
 //    Marker ownMarkerCompany;
 
     // Extras
@@ -274,26 +273,15 @@ public abstract class GeolocationActivity extends BaseActivity {
         Point mapPoint = mMap.getProjection().toScreenLocation(myLocation);
         mapPoint.set(mapPoint.x, mapPoint.y); // change these values as you need , just hard coded a value if you want you can give it based on a ratio like using DisplayMetrics  as well
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMap.getProjection().fromScreenLocation(mapPoint), 16.0f));
-        mMap.setMyLocationEnabled(false);
-
-        // Add accuracy circle
-        if(accuracyCircle != null){
-            accuracyCircle.remove();
-        }
-        accuracyCircle = mMap.addCircle(new CircleOptions()
-                .center(myLocation)
-                .radius(location.getAccuracy())
-                .strokeColor(0x660000FF)
-                .strokeWidth(3f)
-                .fillColor(0x220000FF));
+        mMap.setMyLocationEnabled(true);
 
         // Add my location marker
-        if (ownMarker != null)
-            ownMarker.remove();
-            ownMarker = mMap.addMarker(new MarkerOptions()
-                .position(myLocation)
-                .title(getString(R.string.you))
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_emp_map_marker)));
+//        if (ownMarker != null)
+//            ownMarker.remove();
+//            ownMarker = mMap.addMarker(new MarkerOptions()
+//                .position(myLocation)
+//                .title(getString(R.string.you))
+//                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_emp_map_marker)));
 
         // get extras data radius array
         data = getIntent().getStringExtra("data"); // Monas lat
