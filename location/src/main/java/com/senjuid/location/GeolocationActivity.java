@@ -212,7 +212,6 @@ public abstract class GeolocationActivity extends BaseActivity {
         geolocationViewModel.location.observe(this, new Observer<Location>() {
             @Override
             public void onChanged(@Nullable Location location) {
-                Log.d("set location location", location.toString());
                 setMyLocation(location);
             }
         });
