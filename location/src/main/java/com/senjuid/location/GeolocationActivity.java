@@ -226,11 +226,10 @@ public abstract class GeolocationActivity extends BaseActivity {
 
                         // show message
                         showHideLoading(false);
-                        tvSearching.setVisibility(View.VISIBLE);
                         if(getIntent().getStringExtra("message2") != null) {
-                            tvSearching.setText(getIntent().getStringExtra("message2"));
+                            textView_wrong_location.setText(getIntent().getStringExtra("message2"));
                         } else {
-                            tvSearching.setText(getString(R.string.str_mod_loc_high_accuracy));
+                            textView_wrong_location.setText(getString(R.string.str_mod_loc_high_accuracy));
                         }
                     } catch (IntentSender.SendIntentException ex) {
                         ex.printStackTrace();
