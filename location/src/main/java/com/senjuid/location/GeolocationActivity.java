@@ -88,7 +88,7 @@ public abstract class GeolocationActivity extends BaseActivity {
     String label2;
 
     // Fake Location Apps
-    private JSONArray indicated = new JSONArray();
+    private JSONArray arrWhiteList = new JSONArray();
     private AlertDialog alert;
 
     OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
@@ -149,8 +149,8 @@ public abstract class GeolocationActivity extends BaseActivity {
 
         try {
             JSONObject data = new JSONObject(workLocationData);
-            indicated = data.getJSONArray("whiteList");
-            Log.d("indicated", String.valueOf(indicated));
+            arrWhiteList = data.getJSONArray("whiteList");
+            Log.d("indicated", String.valueOf(arrWhiteList));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -237,10 +237,10 @@ public abstract class GeolocationActivity extends BaseActivity {
                 setMyLocation(location);
                 ArrayList<String> whiteList = new ArrayList<>();
 
-                if (indicated != null) {
-                    for (int i = 0; i < indicated.length(); i++) {
+                if (arrWhiteList != null) {
+                    for (int i = 0; i < arrWhiteList.length(); i++) {
                         try {
-                            whiteList.add(indicated.getString(i));
+                            whiteList.add(arrWhiteList.getString(i));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -478,7 +478,7 @@ public abstract class GeolocationActivity extends BaseActivity {
 
         PackageManager pm = context.getPackageManager();
         List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-        indicated = new JSONArray();
+//        indicated = new JSONArray();
 
         for (ApplicationInfo applicationInfo : packages) {
             try {
@@ -495,7 +495,7 @@ public abstract class GeolocationActivity extends BaseActivity {
                                     && !applicationInfo.packageName.equals(context.getPackageName())
                                     && !whiteList.contains(applicationInfo.packageName)) {
                                 count++;
-                                indicated.put(applicationInfo.packageName);
+//                                indicated.put(applicationInfo.packageName);
                             }
                         }
                     }
