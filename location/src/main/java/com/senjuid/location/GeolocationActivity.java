@@ -147,6 +147,13 @@ public abstract class GeolocationActivity extends BaseActivity {
         label2 = getIntent().getStringExtra("message2");
         workLocationData = getIntent().getStringExtra("data");
 
+        try {
+            JSONObject data = new JSONObject(workLocationData);
+            indicated = data.getJSONArray("whiteList");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         // check google api available
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         if (googleApiAvailability.isGooglePlayServicesAvailable(this) != ConnectionResult.SUCCESS) {
@@ -228,6 +235,17 @@ public abstract class GeolocationActivity extends BaseActivity {
             public void onChanged(@Nullable Location location) {
                 setMyLocation(location);
                 ArrayList<String> whiteList = new ArrayList<>();
+
+                if (indicated != null) {
+                    for (int i = 0; i < indicated.length(); i++) {
+                        try {
+                            whiteList.add(indicated.getString(i));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
                 boolean areThereMockPermissionApps = areThereMockPermissionApps(mContext, whiteList);
                 if (areThereMockPermissionApps && !alert.isShowing()) {
                     alert.show();
