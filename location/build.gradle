@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 apply plugin: 'com.github.dcendents.android-maven'
 
-group = 'com.github.senjuid'
+group = 'com.github.subhanrn'
 
 android {
     compileSdkVersion 28
