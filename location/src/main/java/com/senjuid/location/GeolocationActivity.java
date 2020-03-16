@@ -150,6 +150,7 @@ public abstract class GeolocationActivity extends BaseActivity {
         try {
             JSONObject data = new JSONObject(workLocationData);
             indicated = data.getJSONArray("whiteList");
+            Log.d("indicated", String.valueOf(indicated));
         } catch (JSONException e) {
             e.printStackTrace();
         }
