@@ -247,7 +247,16 @@ public abstract class GeolocationActivity extends BaseActivity {
                     }
                 }
 
-                boolean areThereMockPermissionApps = areThereMockPermissionApps(mContext, whiteList);
+                JSONObject data = null;
+                boolean allowMock = false;
+                try {
+                    data = new JSONObject(workLocationData);
+                    allowMock = data.getBoolean("allowMock");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                boolean areThereMockPermissionApps = allowMock ? false : areThereMockPermissionApps(mContext, whiteList);
                 if (areThereMockPermissionApps && !alert.isShowing()) {
                     alert.show();
                 }
