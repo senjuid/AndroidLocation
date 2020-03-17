@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -42,6 +44,9 @@ import com.senjuid.location.util.BaseActivity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class GeolocationActivity extends BaseActivity {
 
@@ -82,6 +87,10 @@ public abstract class GeolocationActivity extends BaseActivity {
     String label1;
     String label2;
 
+    // Fake Location Apps
+    private JSONArray arrWhiteList = new JSONArray();
+    private AlertDialog alert;
+
     OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(GoogleMap googleMap) {
@@ -89,23 +98,24 @@ public abstract class GeolocationActivity extends BaseActivity {
 
             workLat = -6.174793; // default lat
             workLon = 106.827144; // default lon
-            if(workLocationData != null){
-                try{
+            if (workLocationData != null) {
+                try {
                     JSONObject data = new JSONObject(workLocationData);
                     JSONArray locArray = data.getJSONArray("data");
 
-                    if(locArray != null && locArray.length()> 0){
-                        for(int i=0;i<locArray.length();i++){
+                    if (locArray != null && locArray.length() > 0) {
+                        for (int i = 0; i < locArray.length(); i++) {
                             addCompanyLocation(locArray.getJSONObject(i));
 
                             // set start location
-                            if(i == 0){
+                            if (i == 0) {
                                 workLat = locArray.getJSONObject(i).optDouble("work_lat");
                                 workLon = locArray.getJSONObject(i).optDouble("work_lon");
                             }
                         }
                     }
-                }catch (JSONException je){}
+                } catch (JSONException je) {
+                }
             }
 
             LatLng sydney = new LatLng(workLat, workLon);
@@ -137,9 +147,17 @@ public abstract class GeolocationActivity extends BaseActivity {
         label2 = getIntent().getStringExtra("message2");
         workLocationData = getIntent().getStringExtra("data");
 
+        try {
+            JSONObject data = new JSONObject(workLocationData);
+            arrWhiteList = data.getJSONArray("whiteList");
+            Log.d("indicated", String.valueOf(arrWhiteList));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         // check google api available
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
-        if(googleApiAvailability.isGooglePlayServicesAvailable(this) != ConnectionResult.SUCCESS){
+        if (googleApiAvailability.isGooglePlayServicesAvailable(this) != ConnectionResult.SUCCESS) {
             googleApiAvailability.getErrorDialog(this, 404, 200, new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
@@ -181,6 +199,9 @@ public abstract class GeolocationActivity extends BaseActivity {
 
         // hide loading
         showHideLoading(true);
+
+        // init Alert Mock
+        createAlertMock();
     }
 
     // Add company location  marker and radius
@@ -209,10 +230,36 @@ public abstract class GeolocationActivity extends BaseActivity {
 
     private void observeLiveData() {
         // observe location update
+        final Context mContext = this;
         geolocationViewModel.location.observe(this, new Observer<Location>() {
             @Override
             public void onChanged(@Nullable Location location) {
                 setMyLocation(location);
+                ArrayList<String> whiteList = new ArrayList<>();
+
+                if (arrWhiteList != null) {
+                    for (int i = 0; i < arrWhiteList.length(); i++) {
+                        try {
+                            whiteList.add(arrWhiteList.getString(i));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                JSONObject data = null;
+                boolean allowMock = false;
+                try {
+                    data = new JSONObject(workLocationData);
+                    allowMock = data.getBoolean("allowMock");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                boolean areThereMockPermissionApps = allowMock ? false : areThereMockPermissionApps(mContext, whiteList);
+                if (areThereMockPermissionApps && !alert.isShowing()) {
+                    alert.show();
+                }
             }
         });
 
@@ -226,7 +273,7 @@ public abstract class GeolocationActivity extends BaseActivity {
 
                         // show message
                         showHideLoading(false);
-                        if(getIntent().getStringExtra("message2") != null) {
+                        if (getIntent().getStringExtra("message2") != null) {
                             textView_wrong_location.setText(getIntent().getStringExtra("message2"));
                         } else {
                             textView_wrong_location.setText(getString(R.string.str_mod_loc_high_accuracy));
@@ -299,7 +346,7 @@ public abstract class GeolocationActivity extends BaseActivity {
         tvAccuracy = findViewById(R.id.tv_accuracy);
 
         textView_location_maps_found_title = findViewById(R.id.textView_location_maps_found_title);
-        if(getIntent().getStringExtra("message1") != null) {
+        if (getIntent().getStringExtra("message1") != null) {
             textView_location_maps_found_title.setText(getIntent().getStringExtra("message1"));
         }
 
@@ -434,4 +481,54 @@ public abstract class GeolocationActivity extends BaseActivity {
     }
 
     public abstract void onYesButtonPressed(Double latitude, Double longitude, String address);
+
+    private boolean areThereMockPermissionApps(Context context, ArrayList<String> whiteList) {
+        int count = 0;
+
+        PackageManager pm = context.getPackageManager();
+        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+//        indicated = new JSONArray();
+
+        for (ApplicationInfo applicationInfo : packages) {
+            try {
+                PackageInfo packageInfo = pm.getPackageInfo(applicationInfo.packageName, PackageManager.GET_PERMISSIONS);
+
+                // Get Permissions
+                String[] requestedPermissions = packageInfo.requestedPermissions;
+
+                if (requestedPermissions != null) {
+                    for (String requestedPermission : requestedPermissions) {
+                        // Check for System App //
+                        if (!((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1)) {
+                            if (requestedPermission.equals("android.permission.ACCESS_MOCK_LOCATION")
+                                    && !applicationInfo.packageName.equals(context.getPackageName())
+                                    && !whiteList.contains(applicationInfo.packageName)) {
+                                count++;
+//                                indicated.put(applicationInfo.packageName);
+                            }
+                        }
+                    }
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.e("Got exception ", e.getMessage());
+            }
+        }
+
+        return count > 0;
+    }
+
+    private void createAlertMock() {
+        AlertDialog.Builder myAlert = new AlertDialog.Builder(this);
+        myAlert
+                .setTitle("Mock Location")
+                .setCancelable(false)
+                .setMessage("We've detected that there are other apps in the device, which are using Mock Location access (Location Spoofing Apps). Please uninstall first.")
+                .setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
+                });
+        alert = myAlert.create();
+    }
 }
